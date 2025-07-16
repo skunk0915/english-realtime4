@@ -4,7 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function ReviewList() {
-  const [reviewItems, setReviewItems] = useState<any[]>([]);
+  const [reviewItems, setReviewItems] = useState<Array<{
+    id: string;
+    type: string;
+    title: string;
+    addedAt: Date;
+    nextReview: Date;
+    difficulty: number;
+  }>>([]);
   
   useEffect(() => {
     const mockReviewItems = [

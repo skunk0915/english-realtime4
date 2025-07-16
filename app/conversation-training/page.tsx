@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { scenes } from '@/lib/data/scenes';
 

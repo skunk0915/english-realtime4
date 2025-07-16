@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { phraseGroups } from '@/lib/data/phrases';
-import { PhraseGroup, Phrase } from '@/lib/types';
+import { PhraseGroup } from '@/lib/types';
 
 export default function PhraseTrainingGroup() {
   const params = useParams();
@@ -18,7 +18,7 @@ export default function PhraseTrainingGroup() {
   const [incorrectPhrases, setIncorrectPhrases] = useState<number[]>([]);
   const [completedPhrases, setCompletedPhrases] = useState<Set<number>>(new Set());
   
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   
   useEffect(() => {
     const foundGroup = phraseGroups.find(g => g.id === groupId);
@@ -31,7 +31,7 @@ export default function PhraseTrainingGroup() {
   
   const startListening = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const SpeechRecognition = (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'en-US';
       recognitionRef.current.continuous = false;
@@ -43,7 +43,7 @@ export default function PhraseTrainingGroup() {
         setIsCorrect(null);
       };
       
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setUserResponse(transcript);
         setIsListening(false);
