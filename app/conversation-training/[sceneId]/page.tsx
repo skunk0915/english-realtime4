@@ -5,6 +5,44 @@ import { useParams, useRouter } from 'next/navigation';
 import { scenes } from '@/lib/data/scenes';
 import { Scene } from '@/lib/types';
 
+// Web Speech API型定義
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: (() => void) | null;
+  start(): void;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult;
+  length: number;
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+  length: number;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export default function ConversationScene() {
   const params = useParams();
   const router = useRouter();
@@ -19,7 +57,7 @@ export default function ConversationScene() {
   const [isTimerActive, setIsTimerActive] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const recognitionRef = useRef<any | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   
   useEffect(() => {
     const foundScene = scenes.find(s => s.id === sceneId);
@@ -49,7 +87,7 @@ export default function ConversationScene() {
   
   const startListening = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'en-US';
       recognitionRef.current.continuous = false;
@@ -61,7 +99,7 @@ export default function ConversationScene() {
         setTimeLeft(6);
       };
       
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setUserResponse(transcript);
         setIsListening(false);
