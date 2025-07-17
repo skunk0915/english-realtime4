@@ -5,6 +5,44 @@ import { useParams, useRouter } from 'next/navigation';
 import { phraseGroups } from '@/lib/data/phrases';
 import { PhraseGroup } from '@/lib/types';
 
+// Web Speech API型定義
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: (() => void) | null;
+  start(): void;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult;
+  length: number;
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+  length: number;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export default function PhraseTrainingGroup() {
   const params = useParams();
   const router = useRouter();
@@ -31,7 +69,7 @@ export default function PhraseTrainingGroup() {
   
   const startListening = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).SpeechRecognition;
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'en-US';
       recognitionRef.current.continuous = false;
