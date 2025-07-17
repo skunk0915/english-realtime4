@@ -13,71 +13,71 @@ const phraseGroups = [
         id: 'o1',
         japanese: 'おはようございます',
         english: 'Good morning',
-        audio: '/audio/phrases/office/o1.aiff',
-        audioSlow: '/audio/phrases/office/o1-slow.aiff'
+        audio: '/audio/phrases/office/o1.mp3',
+        audioSlow: '/audio/phrases/office/o1-slow.mp3'
       },
       {
         id: 'o2',
         japanese: 'お疲れ様でした',
         english: 'Good work today',
-        audio: '/audio/phrases/office/o2.aiff',
-        audioSlow: '/audio/phrases/office/o2-slow.aiff'
+        audio: '/audio/phrases/office/o2.mp3',
+        audioSlow: '/audio/phrases/office/o2-slow.mp3'
       },
       {
         id: 'o3',
         japanese: '会議はいつですか？',
         english: 'When is the meeting?',
-        audio: '/audio/phrases/office/o3.aiff',
-        audioSlow: '/audio/phrases/office/o3-slow.aiff'
+        audio: '/audio/phrases/office/o3.mp3',
+        audioSlow: '/audio/phrases/office/o3-slow.mp3'
       },
       {
         id: 'o4',
         japanese: 'すみません、質問があります',
         english: 'Excuse me, I have a question',
-        audio: '/audio/phrases/office/o4.aiff',
-        audioSlow: '/audio/phrases/office/o4-slow.aiff'
+        audio: '/audio/phrases/office/o4.mp3',
+        audioSlow: '/audio/phrases/office/o4-slow.mp3'
       },
       {
         id: 'o5',
         japanese: 'メールを確認しました',
         english: 'I checked the email',
-        audio: '/audio/phrases/office/o5.aiff',
-        audioSlow: '/audio/phrases/office/o5-slow.aiff'
+        audio: '/audio/phrases/office/o5.mp3',
+        audioSlow: '/audio/phrases/office/o5-slow.mp3'
       },
       {
         id: 'o6',
         japanese: '明日までに完成させます',
         english: 'I will finish it by tomorrow',
-        audio: '/audio/phrases/office/o6.aiff',
-        audioSlow: '/audio/phrases/office/o6-slow.aiff'
+        audio: '/audio/phrases/office/o6.mp3',
+        audioSlow: '/audio/phrases/office/o6-slow.mp3'
       },
       {
         id: 'o7',
         japanese: 'プロジェクトの進捗はどうですか？',
         english: 'How is the project progress?',
-        audio: '/audio/phrases/office/o7.aiff',
-        audioSlow: '/audio/phrases/office/o7-slow.aiff'
+        audio: '/audio/phrases/office/o7.mp3',
+        audioSlow: '/audio/phrases/office/o7-slow.mp3'
       },
       {
         id: 'o8',
         japanese: '少し遅れています',
         english: 'I am a little behind schedule',
-        audio: '/audio/phrases/office/o8.aiff',
-        audioSlow: '/audio/phrases/office/o8-slow.aiff'
+        audio: '/audio/phrases/office/o8.mp3',
+        audioSlow: '/audio/phrases/office/o8-slow.mp3'
       },
       {
         id: 'o9',
         japanese: '手伝いが必要ですか？',
         english: 'Do you need any help?',
-        audio: '/audio/phrases/office/o9.aiff',
-        audioSlow: '/audio/phrases/office/o9-slow.aiff'
+        audio: '/audio/phrases/office/o9.mp3',
+        audioSlow: '/audio/phrases/office/o9-slow.mp3'
       },
       {
         id: 'o10',
         japanese: 'ありがとうございます、大丈夫です',
         english: 'Thank you, I am fine',
-        audio: '/audio/phrases/office/o10.aiff',
-        audioSlow: '/audio/phrases/office/o10-slow.aiff'
+        audio: '/audio/phrases/office/o10.mp3',
+        audioSlow: '/audio/phrases/office/o10-slow.mp3'
       }
     ]
   },
@@ -90,71 +90,71 @@ const phraseGroups = [
         id: 's1',
         japanese: 'いくらですか？',
         english: 'How much is it?',
-        audio: '/audio/phrases/shopping/s1.aiff',
-        audioSlow: '/audio/phrases/shopping/s1-slow.aiff'
+        audio: '/audio/phrases/shopping/s1.mp3',
+        audioSlow: '/audio/phrases/shopping/s1-slow.mp3'
       },
       {
         id: 's2',
         japanese: 'これを試着できますか？',
         english: 'Can I try this on?',
-        audio: '/audio/phrases/shopping/s2.aiff',
-        audioSlow: '/audio/phrases/shopping/s2-slow.aiff'
+        audio: '/audio/phrases/shopping/s2.mp3',
+        audioSlow: '/audio/phrases/shopping/s2-slow.mp3'
       },
       {
         id: 's3',
         japanese: '他のサイズはありますか？',
         english: 'Do you have other sizes?',
-        audio: '/audio/phrases/shopping/s3.aiff',
-        audioSlow: '/audio/phrases/shopping/s3-slow.aiff'
+        audio: '/audio/phrases/shopping/s3.mp3',
+        audioSlow: '/audio/phrases/shopping/s3-slow.mp3'
       },
       {
         id: 's4',
         japanese: 'これを買います',
         english: 'I will buy this',
-        audio: '/audio/phrases/shopping/s4.aiff',
-        audioSlow: '/audio/phrases/shopping/s4-slow.aiff'
+        audio: '/audio/phrases/shopping/s4.mp3',
+        audioSlow: '/audio/phrases/shopping/s4-slow.mp3'
       },
       {
         id: 's5',
         japanese: 'クレジットカードで払えますか？',
         english: 'Can I pay by credit card?',
-        audio: '/audio/phrases/shopping/s5.aiff',
-        audioSlow: '/audio/phrases/shopping/s5-slow.aiff'
+        audio: '/audio/phrases/shopping/s5.mp3',
+        audioSlow: '/audio/phrases/shopping/s5-slow.mp3'
       },
       {
         id: 's6',
         japanese: 'レシートをください',
         english: 'May I have a receipt?',
-        audio: '/audio/phrases/shopping/s6.aiff',
-        audioSlow: '/audio/phrases/shopping/s6-slow.aiff'
+        audio: '/audio/phrases/shopping/s6.mp3',
+        audioSlow: '/audio/phrases/shopping/s6-slow.mp3'
       },
       {
         id: 's7',
         japanese: '割引はありますか？',
         english: 'Is there any discount?',
-        audio: '/audio/phrases/shopping/s7.aiff',
-        audioSlow: '/audio/phrases/shopping/s7-slow.aiff'
+        audio: '/audio/phrases/shopping/s7.mp3',
+        audioSlow: '/audio/phrases/shopping/s7-slow.mp3'
       },
       {
         id: 's8',
         japanese: '返品できますか？',
         english: 'Can I return this?',
-        audio: '/audio/phrases/shopping/s8.aiff',
-        audioSlow: '/audio/phrases/shopping/s8-slow.aiff'
+        audio: '/audio/phrases/shopping/s8.mp3',
+        audioSlow: '/audio/phrases/shopping/s8-slow.mp3'
       },
       {
         id: 's9',
         japanese: '店員さんはどこですか？',
         english: 'Where is the store clerk?',
-        audio: '/audio/phrases/shopping/s9.aiff',
-        audioSlow: '/audio/phrases/shopping/s9-slow.aiff'
+        audio: '/audio/phrases/shopping/s9.mp3',
+        audioSlow: '/audio/phrases/shopping/s9-slow.mp3'
       },
       {
         id: 's10',
         japanese: 'ありがとうございました',
         english: 'Thank you very much',
-        audio: '/audio/phrases/shopping/s10.aiff',
-        audioSlow: '/audio/phrases/shopping/s10-slow.aiff'
+        audio: '/audio/phrases/shopping/s10.mp3',
+        audioSlow: '/audio/phrases/shopping/s10-slow.mp3'
       }
     ]
   }
@@ -171,35 +171,35 @@ const scenes = [
         id: 'r1',
         speaker: 'ai',
         text: 'Good evening! Welcome to our restaurant. How many people will be dining today?',
-        audio: '/audio/restaurant/r1.aiff',
+        audio: '/audio/restaurant/r1.mp3',
         responses: [
           {
             id: 'r1-b1',
             level: 'beginner',
             text: 'Two people, please.',
-            audio: '/audio/restaurant/r1-b1.aiff',
-            audioSlow: '/audio/restaurant/r1-b1-slow.aiff'
+            audio: '/audio/restaurant/r1-b1.mp3',
+            audioSlow: '/audio/restaurant/r1-b1-slow.mp3'
           },
           {
             id: 'r1-b2',
             level: 'beginner', 
             text: 'Table for two, please.',
-            audio: '/audio/restaurant/r1-b2.aiff',
-            audioSlow: '/audio/restaurant/r1-b2-slow.aiff'
+            audio: '/audio/restaurant/r1-b2.mp3',
+            audioSlow: '/audio/restaurant/r1-b2-slow.mp3'
           },
           {
             id: 'r1-n1',
             level: 'native',
             text: 'We\'d like a table for two, please.',
-            audio: '/audio/restaurant/r1-n1.aiff',
-            audioSlow: '/audio/restaurant/r1-n1-slow.aiff'
+            audio: '/audio/restaurant/r1-n1.mp3',
+            audioSlow: '/audio/restaurant/r1-n1-slow.mp3'
           },
           {
             id: 'r1-n2',
             level: 'native',
             text: 'Good evening! There will be two of us tonight.',
-            audio: '/audio/restaurant/r1-n2.aiff',
-            audioSlow: '/audio/restaurant/r1-n2-slow.aiff'
+            audio: '/audio/restaurant/r1-n2.mp3',
+            audioSlow: '/audio/restaurant/r1-n2-slow.mp3'
           }
         ]
       },
@@ -207,35 +207,35 @@ const scenes = [
         id: 'r2',
         speaker: 'ai',
         text: 'Perfect! Right this way. Here are your menus. Can I start you off with something to drink?',
-        audio: '/audio/restaurant/r2.aiff',
+        audio: '/audio/restaurant/r2.mp3',
         responses: [
           {
             id: 'r2-b1',
             level: 'beginner',
             text: 'Water, please.',
-            audio: '/audio/restaurant/r2-b1.aiff',
-            audioSlow: '/audio/restaurant/r2-b1-slow.aiff'
+            audio: '/audio/restaurant/r2-b1.mp3',
+            audioSlow: '/audio/restaurant/r2-b1-slow.mp3'
           },
           {
             id: 'r2-b2',
             level: 'beginner',
             text: 'I would like water.',
-            audio: '/audio/restaurant/r2-b2.aiff',
-            audioSlow: '/audio/restaurant/r2-b2-slow.aiff'
+            audio: '/audio/restaurant/r2-b2.mp3',
+            audioSlow: '/audio/restaurant/r2-b2-slow.mp3'
           },
           {
             id: 'r2-n1',
             level: 'native',
             text: 'Could we have two glasses of water to start?',
-            audio: '/audio/restaurant/r2-n1.aiff',
-            audioSlow: '/audio/restaurant/r2-n1-slow.aiff'
+            audio: '/audio/restaurant/r2-n1.mp3',
+            audioSlow: '/audio/restaurant/r2-n1-slow.mp3'
           },
           {
             id: 'r2-n2',
             level: 'native',
             text: 'We\'ll have water for now, thank you.',
-            audio: '/audio/restaurant/r2-n2.aiff',
-            audioSlow: '/audio/restaurant/r2-n2-slow.aiff'
+            audio: '/audio/restaurant/r2-n2.mp3',
+            audioSlow: '/audio/restaurant/r2-n2-slow.mp3'
           }
         ]
       }
@@ -251,35 +251,35 @@ const scenes = [
         id: 'a1',
         speaker: 'ai',
         text: 'Good morning! May I see your passport and ticket, please?',
-        audio: '/audio/airport/a1.aiff',
+        audio: '/audio/airport/a1.mp3',
         responses: [
           {
             id: 'a1-b1',
             level: 'beginner',
             text: 'Here you are.',
-            audio: '/audio/airport/a1-b1.aiff',
-            audioSlow: '/audio/airport/a1-b1-slow.aiff'
+            audio: '/audio/airport/a1-b1.mp3',
+            audioSlow: '/audio/airport/a1-b1-slow.mp3'
           },
           {
             id: 'a1-b2',
             level: 'beginner',
             text: 'Here is my passport.',
-            audio: '/audio/airport/a1-b2.aiff',
-            audioSlow: '/audio/airport/a1-b2-slow.aiff'
+            audio: '/audio/airport/a1-b2.mp3',
+            audioSlow: '/audio/airport/a1-b2-slow.mp3'
           },
           {
             id: 'a1-n1',
             level: 'native',
             text: 'Certainly, here\'s my passport and boarding pass.',
-            audio: '/audio/airport/a1-n1.aiff',
-            audioSlow: '/audio/airport/a1-n1-slow.aiff'
+            audio: '/audio/airport/a1-n1.mp3',
+            audioSlow: '/audio/airport/a1-n1-slow.mp3'
           },
           {
             id: 'a1-n2',
             level: 'native',
             text: 'Of course, here you go.',
-            audio: '/audio/airport/a1-n2.aiff',
-            audioSlow: '/audio/airport/a1-n2-slow.aiff'
+            audio: '/audio/airport/a1-n2.mp3',
+            audioSlow: '/audio/airport/a1-n2-slow.mp3'
           }
         ]
       }
@@ -306,15 +306,37 @@ function generateAudio(text, outputPath, speed = 1.0) {
   });
 }
 
-// 音声ファイルを生成する関数（.aiff形式で保存）
+// 音声ファイルを生成する関数（.aiff → .mp3変換）
 async function generateAudioWithConversion(text, outputPath, speed = 1.0) {
-  // .mp3を.aiffに変更
   const aiffPath = outputPath.replace('.mp3', '.aiff');
   
   try {
+    // まずAIFFファイルを生成
     await generateAudio(text, aiffPath, speed);
-    console.log(`Created: ${aiffPath}`);
+    
+    // AIFFをMP3に変換
+    return new Promise((resolve, reject) => {
+      const command = `ffmpeg -i "${aiffPath}" -codec:a libmp3lame -b:a 128k -y "${outputPath}"`;
+      exec(command, (error, stdout, stderr) => {
+        // 一時ファイルを削除
+        if (fs.existsSync(aiffPath)) {
+          fs.unlinkSync(aiffPath);
+        }
+        
+        if (error) {
+          console.error(`Error converting to mp3: ${error.message}`);
+          reject(error);
+          return;
+        }
+        console.log(`Converted: ${outputPath}`);
+        resolve();
+      });
+    });
   } catch (error) {
+    // 一時ファイルを削除
+    if (fs.existsSync(aiffPath)) {
+      fs.unlinkSync(aiffPath);
+    }
     throw error;
   }
 }
@@ -336,14 +358,12 @@ async function generatePhrasesAudio() {
       const slowPath = path.join(groupDir, `${phrase.id}-slow.mp3`);
       
       // 通常速度
-      const normalAiffPath = normalPath.replace('.mp3', '.aiff');
-      if (!fs.existsSync(normalAiffPath)) {
+      if (!fs.existsSync(normalPath)) {
         await generateAudioWithConversion(phrase.english, normalPath, 1.0);
       }
       
       // ゆっくり速度
-      const slowAiffPath = slowPath.replace('.mp3', '.aiff');
-      if (!fs.existsSync(slowAiffPath)) {
+      if (!fs.existsSync(slowPath)) {
         await generateAudioWithConversion(phrase.english, slowPath, 0.7);
       }
     }
@@ -365,8 +385,7 @@ async function generateScenesAudio() {
     for (const conversation of scene.conversations) {
       // AI音声
       const aiPath = path.join(sceneDir, `${conversation.id}.mp3`);
-      const aiAiffPath = aiPath.replace('.mp3', '.aiff');
-      if (!fs.existsSync(aiAiffPath)) {
+      if (!fs.existsSync(aiPath)) {
         await generateAudioWithConversion(conversation.text, aiPath, 1.0);
       }
       
@@ -377,14 +396,12 @@ async function generateScenesAudio() {
           const responseSlowPath = path.join(sceneDir, `${response.id}-slow.mp3`);
           
           // 通常速度
-          const responseAiffPath = responsePath.replace('.mp3', '.aiff');
-          if (!fs.existsSync(responseAiffPath)) {
+          if (!fs.existsSync(responsePath)) {
             await generateAudioWithConversion(response.text, responsePath, 1.0);
           }
           
           // ゆっくり速度
-          const responseSlowAiffPath = responseSlowPath.replace('.mp3', '.aiff');
-          if (!fs.existsSync(responseSlowAiffPath)) {
+          if (!fs.existsSync(responseSlowPath)) {
             await generateAudioWithConversion(response.text, responseSlowPath, 0.7);
           }
         }
