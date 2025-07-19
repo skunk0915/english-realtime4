@@ -5,6 +5,44 @@ import { useParams, useRouter } from 'next/navigation';
 import { phraseGroups } from '@/lib/data/phrases';
 import { PhraseGroup } from '@/lib/types';
 
+// Web Speech API型定義
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: (() => void) | null;
+  start(): void;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult;
+  length: number;
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean;
+  length: number;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
 export default function PhraseTrainingGroup() {
   const params = useParams();
   const router = useRouter();
@@ -31,7 +69,7 @@ export default function PhraseTrainingGroup() {
   
   const startListening = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition; SpeechRecognition: typeof SpeechRecognition }).SpeechRecognition;
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = 'en-US';
       recognitionRef.current.continuous = false;
@@ -96,9 +134,71 @@ export default function PhraseTrainingGroup() {
     setIsCorrect(null);
   };
   
-  const playAudio = (audioPath: string) => {
-    const audio = new Audio(audioPath);
-    audio.play().catch(console.error);
+  const playAudio = async (text: string, speed: number = 1.0) => {
+    try {
+      console.log('音声合成開始:', text, 'speed:', speed);
+      
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, speed }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`TTS API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.audioData) {
+        throw new Error('音声データが取得できませんでした');
+      }
+
+      // Base64音声データをBlobに変換
+      try {
+        const binaryString = atob(data.audioData);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const audioBlob = new Blob([bytes], { type: data.mimeType });
+        
+        if (audioBlob.size === 0) {
+          throw new Error('音声データが空です');
+        }
+
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onerror = (error) => {
+          console.error('音声再生エラー:', error);
+          URL.revokeObjectURL(audioUrl);
+        };
+
+        // 音声の読み込み完了を待つ
+        await new Promise((resolve, reject) => {
+          audio.oncanplaythrough = resolve;
+          audio.onerror = reject;
+          audio.load();
+        });
+
+        await audio.play();
+      } catch (decodeError) {
+        console.error('Base64デコードエラー:', decodeError);
+        throw new Error('音声データの形式が不正です');
+      }
+      console.log('音声再生完了:', text);
+      
+    } catch (error) {
+      console.error('音声合成エラー:', error);
+    }
   };
   
   const restartTraining = () => {
@@ -220,7 +320,7 @@ export default function PhraseTrainingGroup() {
               </div>
             )}
             
-            {isCorrect === false && (
+            {userResponse && (
               <div className="bg-blue-50 rounded-lg p-4 mb-6">
                 <h3 className="font-medium text-blue-800 mb-3">
                   正解例:
@@ -228,13 +328,13 @@ export default function PhraseTrainingGroup() {
                 <p className="text-gray-800 mb-3">{currentPhrase.english}</p>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => playAudio(currentPhrase.audio)}
+                    onClick={() => playAudio(currentPhrase.english, 1.0)}
                     className="text-blue-600 text-sm underline"
                   >
                     🔊 通常速度
                   </button>
                   <button
-                    onClick={() => playAudio(currentPhrase.audioSlow)}
+                    onClick={() => playAudio(currentPhrase.english, 0.7)}
                     className="text-blue-600 text-sm underline"
                   >
                     🔊 ゆっくり
@@ -242,6 +342,7 @@ export default function PhraseTrainingGroup() {
                 </div>
               </div>
             )}
+            
             
             {isCorrect === true && (
               <div className="bg-green-50 rounded-lg p-4 mb-6 text-center">
