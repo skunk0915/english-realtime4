@@ -30,7 +30,7 @@ export const useReviewSystem = (
     reviewItems,
     currentSession,
     addReviewItem,
-    removeReviewItem,
+    removeReviewItem: _removeReviewItem,
     startReviewSession,
     endReviewSession,
     recordResult: storeRecordResult,
@@ -72,8 +72,10 @@ export const useReviewSystem = (
     const newItem = {
       type,
       difficulty: 1,
+      easeFactor: 2.5,
+      repetitionCount: 0,
       ...(type === 'conversation' 
-        ? { conversationId: itemId, sceneId: additionalData.sceneId }
+        ? { conversationId: itemId, sceneId: additionalData.sceneId || '' }
         : { phraseId: itemId }
       ),
     };

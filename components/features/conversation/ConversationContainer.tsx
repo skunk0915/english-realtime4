@@ -33,7 +33,6 @@ const ConversationContainer = () => {
     isTimerActive,
     startListening,
     nextTurn,
-    completeConversation,
   } = useConversationFlow(
     scene ? { scene } : { scene: { id: '', title: '', description: '', category: '', conversations: [] } }
   );

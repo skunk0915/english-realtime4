@@ -29,7 +29,7 @@ interface UseConversationFlowReturn {
 export const useConversationFlow = (
   options: UseConversationFlowOptions
 ): UseConversationFlowReturn => {
-  const { scene, autoAdvance = true, responseTimeout = 6 } = options;
+  const { scene, autoAdvance: _autoAdvance = true, responseTimeout = 6 } = options;
   const router = useRouter();
   
   const {
@@ -47,7 +47,7 @@ export const useConversationFlow = (
   // 音声認識フック
   const {
     isListening,
-    transcript,
+    transcript: _transcript,
     start: startRecognition,
     reset: resetRecognition,
   } = useSpeechRecognition({

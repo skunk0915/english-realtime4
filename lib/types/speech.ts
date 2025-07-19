@@ -39,7 +39,7 @@ export interface SpeechRecognitionAlternative {
 }
 
 // 音声認識の結果型
-export interface SpeechRecognitionResult {
+export interface SpeechRecognitionResultData {
   transcript: string;
   confidence: number;
   timestamp: Date;
@@ -48,7 +48,7 @@ export interface SpeechRecognitionResult {
 
 // 音声再生関連の型
 export interface AudioPlaybackOptions {
-  speed: 'normal' | 'slow';
+  speed?: 'normal' | 'slow';
   volume?: number;
 }
 

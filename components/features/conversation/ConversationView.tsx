@@ -19,7 +19,7 @@ const ConversationView = ({
   isListening,
   userResponse,
   showResponses,
-  timeLeft,
+  timeLeft: _timeLeft,
   isTimerActive,
   onStartListening,
   onNext,

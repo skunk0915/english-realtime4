@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Google TTS APIリクエスト
     const ttsRequest = {
-      input: { text: text },
+      input: { text },
       voice: { 
         languageCode: 'en-US', 
         name: 'en-US-Standard-F'
@@ -124,14 +124,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// フォールバック: 空のレスポンスを返してフロントエンドで処理する
-function createFallbackResponse(text: string): NextResponse {
-  console.log('Using fallback response for text:', text);
-  
-  return NextResponse.json({
-    audioData: null,
-    mimeType: null,
-    fallback: true,
-    message: 'TTS service unavailable - audio playback disabled'
-  });
-}

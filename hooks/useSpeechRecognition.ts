@@ -71,12 +71,14 @@ export const useSpeechRecognition = (
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const result = event.results[event.resultIndex];
-      const resultTranscript = result[0].transcript;
-      const resultConfidence = result[0].confidence;
-      
-      setTranscript(resultTranscript);
-      setConfidence(resultConfidence);
-      onResult?.(resultTranscript, resultConfidence);
+      if (result && result[0]) {
+        const resultTranscript = result[0].transcript;
+        const resultConfidence = result[0].confidence;
+        
+        setTranscript(resultTranscript);
+        setConfidence(resultConfidence);
+        onResult?.(resultTranscript, resultConfidence);
+      }
     };
 
     recognition.onerror = (event) => {

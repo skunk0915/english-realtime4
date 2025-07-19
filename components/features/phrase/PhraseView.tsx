@@ -21,7 +21,7 @@ const PhraseView = ({
   userResponse,
   isCorrect,
   progress,
-  currentIndex,
+  currentIndex: _currentIndex,
   totalPhrases,
   incorrectCount,
   onStartListening,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ConversationSession, Scene } from '@/lib/types/conversation';
+import { ConversationSession } from '@/lib/types/conversation';
 
 interface ConversationState {
   // 現在のセッション

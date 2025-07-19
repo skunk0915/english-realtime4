@@ -35,7 +35,6 @@ const PhraseContainer = () => {
     markAsCorrect,
     markAsIncorrect,
     restartTraining,
-    completeTraining,
   } = usePhraseTraining(
     group ? { group } : { group: { id: '', title: '', category: '', phrases: [] } }
   );

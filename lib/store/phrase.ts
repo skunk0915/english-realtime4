@@ -45,7 +45,7 @@ export const usePhraseStore = create<PhraseStore>()(
       assessmentResults: [],
 
       // アクション
-      startSession: (groupId: string, totalPhrases: number) => {
+      startSession: (groupId: string, _totalPhrases: number) => {
         const newSession: PhraseSession = {
           groupId,
           currentPhraseIndex: 0,

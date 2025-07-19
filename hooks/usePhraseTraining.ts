@@ -29,7 +29,7 @@ interface UsePhraseTrainingReturn {
 export const usePhraseTraining = (
   options: UsePhraseTrainingOptions
 ): UsePhraseTrainingReturn => {
-  const { group, autoAdvance = true } = options;
+  const { group, autoAdvance: _autoAdvance = true } = options;
   const router = useRouter();
   
   const {
@@ -52,7 +52,7 @@ export const usePhraseTraining = (
   // 音声認識フック
   const {
     isListening: speechIsListening,
-    transcript,
+    transcript: _transcript,
     start: startRecognition,
     reset: resetRecognition,
   } = useSpeechRecognition({
@@ -104,7 +104,7 @@ export const usePhraseTraining = (
   const markAsCorrect = () => {
     storeMarkAsCorrect();
     
-    if (autoAdvance) {
+    if (_autoAdvance) {
       setTimeout(() => {
         nextPhrase();
       }, 1000);
