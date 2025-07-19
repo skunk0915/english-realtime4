@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const textToSpeech = require('@google-cloud/text-to-speech');
 
 // データファイルを直接読み込み
 const phraseGroups = [
@@ -287,56 +288,41 @@ const scenes = [
   }
 ];
 
-// macOSのsayコマンドを使用して音声ファイルを生成する関数
-function generateAudio(text, outputPath, speed = 1.0) {
-  return new Promise((resolve, reject) => {
-    const speedFlag = speed < 1.0 ? '-r 150' : '-r 200'; // 読み上げ速度を調整
-    // .aiff形式で直接生成
-    const command = `say -v "Alex" ${speedFlag} -o "${outputPath}" "${text.replace(/'/g, "\\'")}"`; 
+// Google Cloud Text-to-Speech クライアントを初期化
+const client = new textToSpeech.TextToSpeechClient({
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
+});
+
+// Google TTSを使用して音声ファイルを生成する関数
+async function generateAudio(text, outputPath, speed = 1.0) {
+  try {
+    const request = {
+      input: { text: text },
+      voice: { 
+        languageCode: 'en-US', 
+        name: 'en-US-Standard-F' // 女性の声
+      },
+      audioConfig: { 
+        audioEncoding: 'MP3',
+        speakingRate: speed
+      },
+    };
+
+    const [response] = await client.synthesizeSpeech(request);
     
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error generating audio for "${text}": ${error.message}`);
-        reject(error);
-        return;
-      }
-      console.log(`Generated: ${outputPath}`);
-      resolve();
-    });
-  });
+    fs.writeFileSync(outputPath, response.audioContent, 'binary');
+    console.log(`Generated: ${outputPath}`);
+  } catch (error) {
+    console.error(`Error generating audio for "${text}": ${error.message}`);
+    throw error;
+  }
 }
 
-// 音声ファイルを生成する関数（.aiff → .mp3変換）
+// 音声ファイルを生成する関数（Google TTSは直接MP3を生成するため変換不要）
 async function generateAudioWithConversion(text, outputPath, speed = 1.0) {
-  const aiffPath = outputPath.replace('.mp3', '.aiff');
-  
   try {
-    // まずAIFFファイルを生成
-    await generateAudio(text, aiffPath, speed);
-    
-    // AIFFをMP3に変換
-    return new Promise((resolve, reject) => {
-      const command = `ffmpeg -i "${aiffPath}" -codec:a libmp3lame -b:a 128k -y "${outputPath}"`;
-      exec(command, (error, stdout, stderr) => {
-        // 一時ファイルを削除
-        if (fs.existsSync(aiffPath)) {
-          fs.unlinkSync(aiffPath);
-        }
-        
-        if (error) {
-          console.error(`Error converting to mp3: ${error.message}`);
-          reject(error);
-          return;
-        }
-        console.log(`Converted: ${outputPath}`);
-        resolve();
-      });
-    });
+    await generateAudio(text, outputPath, speed);
   } catch (error) {
-    // 一時ファイルを削除
-    if (fs.existsSync(aiffPath)) {
-      fs.unlinkSync(aiffPath);
-    }
     throw error;
   }
 }

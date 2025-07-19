@@ -129,9 +129,67 @@ export default function ConversationScene() {
     }
   };
   
-  const playAudio = (audioPath: string) => {
-    const audio = new Audio(audioPath);
-    audio.play().catch(console.error);
+  const playAudio = async (text: string, speed: 'normal' | 'slow' = 'normal') => {
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, speed }),
+      });
+
+      if (!response.ok) {
+        throw new Error('音声合成に失敗しました');
+      }
+
+      const data = await response.json();
+      
+      if (!data.audioData) {
+        throw new Error('音声データが取得できませんでした');
+      }
+
+      // Base64音声データをBlobに変換
+      try {
+        const binaryString = atob(data.audioData);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const audioBlob = new Blob([bytes], { type: data.mimeType });
+        
+        if (audioBlob.size === 0) {
+          throw new Error('音声データが空です');
+        }
+
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.addEventListener('ended', () => {
+          URL.revokeObjectURL(audioUrl);
+        });
+        
+        audio.addEventListener('error', (error) => {
+          console.error('音声再生エラー:', error);
+          URL.revokeObjectURL(audioUrl);
+        });
+
+        // 音声の読み込み完了を待つ
+        await new Promise((resolve, reject) => {
+          audio.oncanplaythrough = resolve;
+          audio.onerror = reject;
+          audio.load();
+        });
+
+        await audio.play();
+      } catch (decodeError) {
+        console.error('Base64デコードエラー:', decodeError);
+        throw new Error('音声データの形式が不正です');
+      }
+    } catch (error) {
+      console.error('音声再生エラー:', error);
+    }
   };
   
   if (!scene) {
@@ -167,7 +225,7 @@ export default function ConversationScene() {
             <div className="flex-1">
               <p className="text-gray-800 mb-3">{currentTurn.text}</p>
               <button
-                onClick={() => playAudio(currentTurn.audio || '')}
+                onClick={() => playAudio(currentTurn.text)}
                 className="text-blue-600 text-sm underline"
               >
                 🔊 音声を再生
@@ -224,13 +282,13 @@ export default function ConversationScene() {
                     <p className="text-gray-800 mb-2">{response.text}</p>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => playAudio(response.audio)}
+                        onClick={() => playAudio(response.text, 'normal')}
                         className="text-blue-600 text-xs underline"
                       >
                         🔊 通常速度
                       </button>
                       <button
-                        onClick={() => playAudio(response.audioSlow)}
+                        onClick={() => playAudio(response.text, 'slow')}
                         className="text-blue-600 text-xs underline"
                       >
                         🔊 ゆっくり
@@ -251,13 +309,13 @@ export default function ConversationScene() {
                     <p className="text-gray-800 mb-2">{response.text}</p>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => playAudio(response.audio)}
+                        onClick={() => playAudio(response.text, 'normal')}
                         className="text-green-600 text-xs underline"
                       >
                         🔊 通常速度
                       </button>
                       <button
-                        onClick={() => playAudio(response.audioSlow)}
+                        onClick={() => playAudio(response.text, 'slow')}
                         className="text-green-600 text-xs underline"
                       >
                         🔊 ゆっくり
