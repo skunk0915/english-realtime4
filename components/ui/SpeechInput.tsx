@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { Button } from './Button';
-import { Card, CardContent } from './Card';
+import Button from './Button';
+import Card, { CardContent } from './Card';
 
 interface SpeechInputProps {
   onConfirm: (transcript: string) => void;

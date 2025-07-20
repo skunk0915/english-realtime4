@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Button } from './Button';
+import Button from './Button';
 import { useAudioCache } from '@/hooks/useAudioCache';
 
 interface EnhancedAudioControlsProps {
