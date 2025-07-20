@@ -46,9 +46,11 @@ export const useAudioCache = (options: UseAudioCacheOptions = {}): UseAudioCache
     );
 
     // 最も古いエントリを削除
-    const [oldestKey, oldestEntry] = entries[0];
-    URL.revokeObjectURL(oldestEntry.url);
-    cache.current.delete(oldestKey);
+    if (entries.length > 0) {
+      const [oldestKey, oldestEntry] = entries[0];
+      URL.revokeObjectURL(oldestEntry.url);
+      cache.current.delete(oldestKey);
+    }
   }, []);
 
   // サイズ制限チェックと調整
