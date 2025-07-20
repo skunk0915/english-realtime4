@@ -32,7 +32,6 @@ export const SpeechInput = ({
 
   const {
     isListening,
-    confidence,
     error,
     start,
     stop,
