@@ -147,7 +147,7 @@ export const EnhancedAudioControls = ({
         onPlayEnd?.();
       });
 
-      audio.addEventListener('error', (event) => {
+      audio.addEventListener('error', () => {
         const error = new Error('音声の再生に失敗しました');
         setAudioState(prev => ({ 
           ...prev, 
