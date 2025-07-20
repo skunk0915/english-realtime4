@@ -196,6 +196,7 @@ export const EnhancedAudioControls = ({
       
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [autoPlay, text]);
 
   // 手動再生時の自動再生ブロック状態をリセット
