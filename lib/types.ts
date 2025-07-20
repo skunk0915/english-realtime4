@@ -4,6 +4,8 @@ export interface ConversationTurn {
   text: string;
   audio?: string;
   responses?: ConversationResponse[];
+  context?: string;
+  translation?: string;
 }
 
 export interface ConversationResponse {
