@@ -49,7 +49,7 @@ const ConversationView = ({
                   onReveal={() => setIsTextRevealed(true)}
                   revealButtonText="英文を表示"
                   placeholder="🔊 まずは音声を聞いてみましょう"
-                  translation={turn.translation}
+                  {...(turn.translation && { translation: turn.translation })}
                 />
               </div>
               <EnhancedAudioControls
