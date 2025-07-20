@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { ConversationTurn } from '@/lib/types/conversation';
-import { Card, CardContent, Button, Timer, AudioControls } from '@/components/ui';
+import { Card, CardContent, Button, Timer, EnhancedAudioControls, SpeechInput, TextReveal } from '@/components/ui';
 
 interface ConversationViewProps {
   turn: ConversationTurn;
-  isListening: boolean;
   userResponse: string;
   showResponses: boolean;
   timeLeft: number;
   isTimerActive: boolean;
-  onStartListening: () => void;
+  isInputActive: boolean;
+  onSpeechConfirm: (transcript: string) => void;
+  onSpeechCancel: () => void;
+  onAudioPlayEnd: () => void;
   onNext: () => void;
   onAddToReview: () => void;
   isLastTurn: boolean;
@@ -16,55 +19,74 @@ interface ConversationViewProps {
 
 const ConversationView = ({
   turn,
-  isListening,
   userResponse,
   showResponses,
   timeLeft: _timeLeft,
   isTimerActive,
-  onStartListening,
+  isInputActive,
+  onSpeechConfirm,
+  onSpeechCancel,
+  onAudioPlayEnd,
   onNext,
   onAddToReview,
   isLastTurn,
 }: ConversationViewProps) => {
+  const [isTextRevealed, setIsTextRevealed] = useState(false);
   return (
     <div className='space-y-6'>
       {/* AI メッセージ */}
       <Card>
-        <CardContent className='flex items-start space-x-3'>
-          <div className='w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center'>
-            <span className='text-white text-sm'>AI</span>
-          </div>
-          <div className='flex-1'>
-            <p className='text-gray-800 mb-3'>{turn.text}</p>
-            <AudioControls text={turn.text} />
+        <CardContent className='space-y-4'>
+          <div className='flex items-start space-x-3'>
+            <div className='w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center'>
+              <span className='text-white text-sm'>AI</span>
+            </div>
+            <div className='flex-1'>
+              <div className='mb-3'>
+                <TextReveal
+                  text={turn.text}
+                  isRevealed={isTextRevealed}
+                  onReveal={() => setIsTextRevealed(true)}
+                  revealButtonText="英文を表示"
+                  placeholder="🔊 まずは音声を聞いてみましょう"
+                />
+              </div>
+              <EnhancedAudioControls
+                text={turn.text}
+                autoPlay={true}
+                onPlayEnd={onAudioPlayEnd}
+                onError={(error) => console.error('音声再生エラー:', error)}
+                showSlowSpeed={true}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* 音声入力セクション */}
-      <div className='text-center space-y-4'>
-        {!isListening && !showResponses && (
-          <Button
-            onClick={onStartListening}
-            variant='danger'
-            size='lg'
-            className='rounded-full'
-          >
-            🎤 音声で応答 (6秒以内)
-          </Button>
-        )}
-        
-        {isListening && (
-          <div className='space-y-3'>
-            <Timer
-              initialTime={6}
-              isActive={isTimerActive}
-              showAnimation={true}
+      <div className='space-y-4'>
+        {!showResponses && (
+          <>
+            <SpeechInput
+              onConfirm={onSpeechConfirm}
+              onCancel={onSpeechCancel}
+              placeholder="6秒以内に話してください..."
+              isActive={isInputActive}
             />
-            <div className='text-red-500 animate-pulse'>
-              🎤 録音中...
-            </div>
-          </div>
+            
+            {isTimerActive && (
+              <div className='text-center'>
+                <Timer
+                  initialTime={6}
+                  isActive={isTimerActive}
+                  showAnimation={true}
+                />
+                <p className='text-gray-600 text-sm mt-2'>
+                  残り時間
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -96,7 +118,11 @@ const ConversationView = ({
                 <Card key={response.id} variant='bordered' className='mb-2 bg-blue-50'>
                   <CardContent className='py-3'>
                     <p className='text-gray-800 mb-2'>{response.text}</p>
-                    <AudioControls text={response.text} />
+                    <EnhancedAudioControls
+                      text={response.text}
+                      autoPlay={false}
+                      showSlowSpeed={true}
+                    />
                   </CardContent>
                 </Card>
               ))}
@@ -113,7 +139,11 @@ const ConversationView = ({
                 <Card key={response.id} variant='bordered' className='mb-2 bg-green-50'>
                   <CardContent className='py-3'>
                     <p className='text-gray-800 mb-2'>{response.text}</p>
-                    <AudioControls text={response.text} />
+                    <EnhancedAudioControls
+                      text={response.text}
+                      autoPlay={false}
+                      showSlowSpeed={true}
+                    />
                   </CardContent>
                 </Card>
               ))}

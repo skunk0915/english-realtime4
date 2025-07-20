@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Scene, ConversationTurn } from '@/lib/types/conversation';
 import { useConversationStore } from '@/lib/store';
-import { useSpeechRecognition } from './useSpeechRecognition';
 import { useTimer } from './useTimer';
 
 interface UseConversationFlowOptions {
@@ -15,12 +14,14 @@ interface UseConversationFlowReturn {
   currentTurn: ConversationTurn | null;
   currentTurnIndex: number;
   isLastTurn: boolean;
-  isListening: boolean;
   userResponse: string;
   showResponses: boolean;
   timeLeft: number;
   isTimerActive: boolean;
-  startListening: () => void;
+  isInputActive: boolean;
+  handleSpeechConfirm: (transcript: string) => void;
+  handleSpeechCancel: () => void;
+  handleAudioPlayEnd: () => void;
   nextTurn: () => void;
   completeConversation: () => void;
   reset: () => void;
@@ -43,23 +44,7 @@ export const useConversationFlow = (
   } = useConversationStore();
 
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // 音声認識フック
-  const {
-    isListening,
-    transcript: _transcript,
-    start: startRecognition,
-    reset: resetRecognition,
-  } = useSpeechRecognition({
-    onResult: (text: string) => {
-      setUserResponse(text);
-      setShowResponses(true);
-      stopTimer();
-    },
-    onError: () => {
-      stopTimer();
-    },
-  });
+  const [isInputActive, setIsInputActive] = useState(false);
 
   // タイマーフック
   const {
@@ -89,14 +74,33 @@ export const useConversationFlow = (
   const isLastTurn = currentTurnIndex === (scene?.conversations.length ?? 0) - 1;
   const userResponse = currentSession?.userResponses[currentTurnIndex] ?? '';
 
-  const startListening = () => {
-    if (isListening) return;
-    
-    resetRecognition();
-    setShowResponses(false);
-    startRecognition();
-    resetTimer(responseTimeout);
-    startTimer();
+  // セッション開始時に入力を有効化
+  useEffect(() => {
+    if (currentSession && !showResponses) {
+      setIsInputActive(true);
+    } else {
+      setIsInputActive(false);
+    }
+  }, [currentSession, showResponses]);
+
+  const handleSpeechConfirm = (transcript: string) => {
+    setUserResponse(transcript);
+    setShowResponses(true);
+    setIsInputActive(false);
+    stopTimer();
+  };
+
+  const handleSpeechCancel = () => {
+    setIsInputActive(false);
+    stopTimer();
+  };
+
+  const handleAudioPlayEnd = () => {
+    // 音声再生完了後に6秒タイマーを開始
+    if (!showResponses && currentSession) {
+      resetTimer(responseTimeout);
+      startTimer();
+    }
   };
 
   const nextTurn = () => {
@@ -107,6 +111,7 @@ export const useConversationFlow = (
     } else {
       storeNextTurn();
       setShowResponses(false);
+      setIsInputActive(true);
       resetTimer(responseTimeout);
     }
   };
@@ -117,10 +122,10 @@ export const useConversationFlow = (
   };
 
   const reset = () => {
-    resetRecognition();
     stopTimer();
     resetTimer(responseTimeout);
     setShowResponses(false);
+    setIsInputActive(false);
     if (scene) {
       startSession(scene.id);
     }
@@ -130,12 +135,14 @@ export const useConversationFlow = (
     currentTurn,
     currentTurnIndex,
     isLastTurn,
-    isListening,
     userResponse,
     showResponses,
     timeLeft,
     isTimerActive,
-    startListening,
+    isInputActive,
+    handleSpeechConfirm,
+    handleSpeechCancel,
+    handleAudioPlayEnd,
     nextTurn,
     completeConversation,
     reset,

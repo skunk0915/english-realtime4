@@ -3,6 +3,8 @@
 // 音声関連フック
 export { useSpeechRecognition } from './useSpeechRecognition';
 export { useAudioPlayer } from './useAudioPlayer';
+export { useAutoPlay } from './useAutoPlay';
+export { useAudioCache } from './useAudioCache';
 export { useTimer } from './useTimer';
 
 // トレーニングフロー管理フック

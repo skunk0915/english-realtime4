@@ -26,12 +26,14 @@ const ConversationContainer = () => {
     currentTurn,
     currentTurnIndex,
     isLastTurn,
-    isListening,
     userResponse,
     showResponses,
     timeLeft,
     isTimerActive,
-    startListening,
+    isInputActive,
+    handleSpeechConfirm,
+    handleSpeechCancel,
+    handleAudioPlayEnd,
     nextTurn,
   } = useConversationFlow(
     scene ? { scene } : { scene: { id: '', title: '', description: '', category: '', conversations: [] } }
@@ -76,12 +78,14 @@ const ConversationContainer = () => {
         {/* メインコンテンツ */}
         <ConversationView
           turn={currentTurn}
-          isListening={isListening}
           userResponse={userResponse}
           showResponses={showResponses}
           timeLeft={timeLeft}
           isTimerActive={isTimerActive}
-          onStartListening={startListening}
+          isInputActive={isInputActive}
+          onSpeechConfirm={handleSpeechConfirm}
+          onSpeechCancel={handleSpeechCancel}
+          onAudioPlayEnd={handleAudioPlayEnd}
           onNext={nextTurn}
           onAddToReview={handleAddToReview}
           isLastTurn={isLastTurn}
