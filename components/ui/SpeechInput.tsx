@@ -8,11 +8,13 @@ interface SpeechInputProps {
   onCancel: () => void;
   placeholder?: string;
   isActive?: boolean;
+  lang?: string;
 }
 
 interface SpeechInputState {
   phase: 'idle' | 'listening' | 'processing' | 'confirming';
   transcript: string;
+  interimTranscript: string;
   confidence: number;
   canRetry: boolean;
 }
@@ -22,10 +24,12 @@ export const SpeechInput = ({
   onCancel,
   placeholder = '話してください...',
   isActive = false,
+  lang = 'en-US',
 }: SpeechInputProps) => {
   const [state, setState] = useState<SpeechInputState>({
     phase: 'idle',
     transcript: '',
+    interimTranscript: '',
     confidence: 0,
     canRetry: false,
   });
@@ -37,13 +41,21 @@ export const SpeechInput = ({
     stop,
     reset,
   } = useSpeechRecognition({
+    lang,
     onResult: (text: string, conf: number) => {
       setState(prev => ({
         ...prev,
         phase: 'confirming',
         transcript: text,
+        interimTranscript: '',
         confidence: conf,
         canRetry: true,
+      }));
+    },
+    onInterimResult: (text: string) => {
+      setState(prev => ({
+        ...prev,
+        interimTranscript: text,
       }));
     },
     onEnd: () => {
@@ -76,6 +88,7 @@ export const SpeechInput = ({
     setState({
       phase: 'idle',
       transcript: '',
+      interimTranscript: '',
       confidence: 0,
       canRetry: false,
     });
@@ -87,6 +100,7 @@ export const SpeechInput = ({
     setState({
       phase: 'idle',
       transcript: '',
+      interimTranscript: '',
       confidence: 0,
       canRetry: false,
     });
@@ -98,6 +112,7 @@ export const SpeechInput = ({
     setState({
       phase: 'idle',
       transcript: '',
+      interimTranscript: '',
       confidence: 0,
       canRetry: false,
     });
@@ -110,6 +125,7 @@ export const SpeechInput = ({
       setState({
         phase: 'idle',
         transcript: '',
+        interimTranscript: '',
         confidence: 0,
         canRetry: false,
       });
@@ -140,13 +156,32 @@ export const SpeechInput = ({
             🎤 録音中...
           </div>
           <p className="text-gray-600 text-sm">{placeholder}</p>
-          <Button
-            onClick={stop}
-            variant="secondary"
-            size="sm"
-          >
-            録音停止
-          </Button>
+          
+          {/* リアルタイム音声認識結果 */}
+          {state.interimTranscript && (
+            <div className="bg-blue-50 p-3 rounded border">
+              <p className="text-blue-800 text-sm italic">
+                {state.interimTranscript}
+              </p>
+            </div>
+          )}
+          
+          <div className="flex space-x-2 justify-center">
+            <Button
+              onClick={stop}
+              variant="secondary"
+              size="sm"
+            >
+              録音停止
+            </Button>
+            <Button
+              onClick={handleCancel}
+              variant="outline"
+              size="sm"
+            >
+              ✕ 取消
+            </Button>
+          </div>
         </div>
       )}
 

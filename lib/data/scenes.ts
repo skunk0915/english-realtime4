@@ -12,6 +12,7 @@ export const scenes: Scene[] = [
         speaker: 'ai',
         text: 'Good evening! Welcome to our restaurant. How many people will be dining today?',
         audio: '/audio/restaurant/r1.mp3',
+        translation: 'こんばんは！当レストランへようこそ。本日は何名様でお食事でしょうか？',
         responses: [
           {
             id: 'r1-b1',
@@ -48,6 +49,7 @@ export const scenes: Scene[] = [
         speaker: 'ai',
         text: 'Perfect! Right this way. Here are your menus. Can I start you off with something to drink?',
         audio: '/audio/restaurant/r2.mp3',
+        translation: '素晴らしい！こちらへどうぞ。メニューをお渡しします。まずはお飲み物はいかがですか？',
         responses: [
           {
             id: 'r2-b1',
@@ -92,6 +94,7 @@ export const scenes: Scene[] = [
         speaker: 'ai',
         text: 'Good morning! May I see your passport and ticket, please?',
         audio: '/audio/airport/a1.mp3',
+        translation: 'おはようございます！パスポートとチケットを見せていただけますか？',
         responses: [
           {
             id: 'a1-b1',

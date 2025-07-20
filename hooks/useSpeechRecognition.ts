@@ -6,6 +6,7 @@ interface UseSpeechRecognitionOptions {
   continuous?: boolean;
   interimResults?: boolean;
   onResult?: (transcript: string, confidence: number) => void;
+  onInterimResult?: (transcript: string) => void;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (error: SpeechError) => void;
@@ -26,10 +27,11 @@ export const useSpeechRecognition = (
   options: UseSpeechRecognitionOptions = {}
 ): UseSpeechRecognitionReturn => {
   const {
-    lang = 'en-US',
-    continuous = false,
-    interimResults = false,
+    lang = 'ja-JP',
+    continuous = true,
+    interimResults = true,
     onResult,
+    onInterimResult,
     onStart,
     onEnd,
     onError,
@@ -77,7 +79,12 @@ export const useSpeechRecognition = (
         
         setTranscript(resultTranscript);
         setConfidence(resultConfidence);
-        onResult?.(resultTranscript, resultConfidence);
+        
+        if (result.isFinal) {
+          onResult?.(resultTranscript, resultConfidence);
+        } else {
+          onInterimResult?.(resultTranscript);
+        }
       }
     };
 
@@ -102,7 +109,7 @@ export const useSpeechRecognition = (
         recognition.abort();
       }
     };
-  }, [lang, continuous, interimResults, onResult, onStart, onEnd, onError, isSupported]);
+  }, [lang, continuous, interimResults, onResult, onInterimResult, onStart, onEnd, onError, isSupported]);
 
   const start = () => {
     if (!recognitionRef.current || isListening) return;

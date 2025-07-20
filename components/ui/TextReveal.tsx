@@ -8,6 +8,7 @@ interface TextRevealProps {
   revealButtonText?: string;
   className?: string;
   placeholder?: string;
+  translation?: string;
 }
 
 export const TextReveal = ({
@@ -17,8 +18,10 @@ export const TextReveal = ({
   revealButtonText = '英文を表示',
   className = '',
   placeholder = '🔊 まずは音声を聞いてみましょう',
+  translation,
 }: TextRevealProps) => {
   const [hasBeenRevealed, setHasBeenRevealed] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
 
   const handleReveal = () => {
     setHasBeenRevealed(true);
@@ -33,14 +36,26 @@ export const TextReveal = ({
             {placeholder}
           </p>
         </div>
-        <Button
-          onClick={handleReveal}
-          variant="outline"
-          size="sm"
-          className="text-blue-600 border-blue-600 hover:bg-blue-50"
-        >
-          👁️ {revealButtonText}
-        </Button>
+        <div className="flex space-x-2 justify-center">
+          <Button
+            onClick={handleReveal}
+            variant="outline"
+            size="sm"
+            className="text-blue-600 border-blue-600 hover:bg-blue-50"
+          >
+            👁️ {revealButtonText}
+          </Button>
+          {translation && (
+            <Button
+              onClick={() => setShowTranslation(!showTranslation)}
+              variant="outline"
+              size="sm"
+              className="text-green-600 border-green-600 hover:bg-green-50"
+            >
+              🗾 日本語訳
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -52,6 +67,25 @@ export const TextReveal = ({
           {text}
         </p>
       </div>
+      {translation && (
+        <div className="text-center">
+          <Button
+            onClick={() => setShowTranslation(!showTranslation)}
+            variant="outline"
+            size="sm"
+            className="text-green-600 border-green-600 hover:bg-green-50"
+          >
+            🗾 {showTranslation ? '日本語訳を隠す' : '日本語訳を表示'}
+          </Button>
+          {showTranslation && (
+            <div className="mt-3 bg-green-50 rounded-lg p-3 border border-green-200">
+              <p className="text-gray-700 text-sm">
+                {translation}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       {hasBeenRevealed && (
         <p className="text-xs text-green-600 text-center">
           ✓ 英文が表示されました
