@@ -6,9 +6,12 @@ import Card, { CardContent } from './Card';
 interface SpeechInputProps {
   onConfirm: (transcript: string) => void;
   onCancel: () => void;
+  onRetry?: () => void;
   placeholder?: string;
   isActive?: boolean;
   lang?: string;
+  shouldStop?: boolean;
+  autoStart?: boolean;
 }
 
 interface SpeechInputState {
@@ -22,9 +25,12 @@ interface SpeechInputState {
 export const SpeechInput = ({
   onConfirm,
   onCancel,
+  onRetry,
   placeholder = '話してください...',
   isActive = false,
   lang = 'en-US',
+  shouldStop = false,
+  autoStart = false,
 }: SpeechInputProps) => {
   const [state, setState] = useState<SpeechInputState>({
     phase: 'idle',
@@ -42,7 +48,11 @@ export const SpeechInput = ({
     reset,
   } = useSpeechRecognition({
     lang,
+    continuous: true,
+    interimResults: true,
     onResult: (text: string, conf: number) => {
+      console.log('✅ 音声認識結果:', text, 'confidence:', conf);
+      console.log('✅ 現在のフェーズ:', state.phase);
       setState(prev => ({
         ...prev,
         phase: 'confirming',
@@ -53,20 +63,25 @@ export const SpeechInput = ({
       }));
     },
     onInterimResult: (text: string) => {
+      console.log('中間認識結果:', text);
       setState(prev => ({
         ...prev,
         interimTranscript: text,
       }));
     },
     onEnd: () => {
+      console.log('音声認識終了', 'phase:', state.phase, 'transcript:', state.transcript);
+      // onResultで既に確認画面に移行している場合は何もしない
       if (state.phase === 'listening') {
         setState(prev => ({
           ...prev,
-          phase: 'processing',
+          phase: 'idle',
+          canRetry: true,
         }));
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('音声認識エラー:', error);
       setState(prev => ({
         ...prev,
         phase: 'idle',
@@ -84,7 +99,25 @@ export const SpeechInput = ({
     }
   }, [isListening]);
 
-  const handleStartListening = () => {
+  // 外部からの停止信号を監視
+  useEffect(() => {
+    if (shouldStop && isListening) {
+      console.log('外部信号により音声認識を停止');
+      stop();
+    }
+  }, [shouldStop, isListening, stop]);
+
+  // 自動開始を監視（エラー状態でない場合のみ）
+  useEffect(() => {
+    if (autoStart && isActive && state.phase === 'idle' && !isListening && !error) {
+      console.log('自動で音声認識を開始');
+      handleStartListening();
+    }
+  }, [autoStart, isActive, state.phase, isListening, error]);
+
+  const handleStartListening = async () => {
+    console.log('🎤 音声認識を開始します');
+    await reset();
     setState({
       phase: 'idle',
       transcript: '',
@@ -95,8 +128,40 @@ export const SpeechInput = ({
     start();
   };
 
-  const handleRetry = () => {
-    reset();
+  const handleTestResult = () => {
+    // テスト用の擬似的な認識結果
+    setState(prev => ({
+      ...prev,
+      phase: 'confirming',
+      transcript: 'Hello, how are you?',
+      interimTranscript: '',
+      confidence: 0.95,
+      canRetry: true,
+    }));
+  };
+
+  const handleForceResult = () => {
+    // 強制的に認識結果を作成してコールバック
+    const testText = 'I would like a table for two please';
+    setState(prev => ({
+      ...prev,
+      phase: 'confirming',
+      transcript: testText,
+      interimTranscript: '',
+      confidence: 0.9,
+      canRetry: true,
+    }));
+    // 親コンポーネントに直接結果を送信
+    onConfirm(testText);
+  };
+
+  const handleRetry = async () => {
+    console.log('🔄 話し直しを開始');
+    
+    // まず音声認識を完全に停止（非同期で完了を待つ）
+    await reset();
+    
+    // 状態をリセット
     setState({
       phase: 'idle',
       transcript: '',
@@ -104,6 +169,12 @@ export const SpeechInput = ({
       confidence: 0,
       canRetry: false,
     });
+    
+    // 親コンポーネントにも話し直しを通知（タイマーリスタート用）
+    onRetry?.();
+    
+    // リセット完了後に開始
+    console.log('🔄 話し直し用に音声認識を開始');
     start();
   };
 
@@ -132,23 +203,97 @@ export const SpeechInput = ({
     }
   };
 
-  if (!isActive && state.phase === 'idle') {
-    return (
-      <div className="text-center">
-        <Button
-          onClick={handleStartListening}
-          variant="danger"
-          size="lg"
-          className="rounded-full"
-        >
-          🎤 音声で応答
-        </Button>
-      </div>
-    );
-  }
-
+  // 常に音声認識状況を表示
   return (
     <div className="space-y-4">
+      {/* 音声認識状況パネル - 常に表示 */}
+      <div className="bg-yellow-50 p-4 rounded border border-yellow-200">
+        <h4 className="font-medium text-yellow-800 mb-2">🎤 音声認識状況</h4>
+        <div className="space-y-2 text-sm">
+          <div>有効: <span className="font-mono">{isActive ? 'はい' : 'いいえ'}</span></div>
+          <div>状態: <span className="font-mono">{state.phase}</span></div>
+          <div>認識中: <span className="font-mono">{isListening ? 'はい' : 'いいえ'}</span></div>
+          <div>中間結果: <span className="font-mono text-blue-600">{state.interimTranscript || '(なし)'}</span></div>
+          <div>最終結果: <span className="font-mono text-green-600 font-bold">{state.transcript || '(なし)'}</span></div>
+          <div>信頼度: <span className="font-mono">{state.confidence > 0 ? Math.round(state.confidence * 100) + '%' : '(なし)'}</span></div>
+          <div>エラー: <span className="font-mono text-red-600">{error?.message || '(なし)'}</span></div>
+        </div>
+        
+        {/* テストボタン */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button
+            onClick={handleTestResult}
+            variant="warning"
+            size="sm"
+          >
+            🧪 テスト結果
+          </Button>
+          <Button
+            onClick={handleForceResult}
+            variant="primary"
+            size="sm"
+          >
+            ✅ 強制送信
+          </Button>
+          <Button
+            onClick={handleStartListening}
+            variant="danger"
+            size="sm"
+          >
+            🎤 手動開始
+          </Button>
+          <Button
+            onClick={() => {
+              reset();
+              setState({
+                phase: 'idle',
+                transcript: '',
+                interimTranscript: '',
+                confidence: 0,
+                canRetry: false,
+              });
+            }}
+            variant="outline"
+            size="sm"
+          >
+            🔄 リセット
+          </Button>
+        </div>
+      </div>
+
+      {/* isActiveがfalseの場合は以下は表示しない */}
+      {!isActive && (
+        <div className="text-center text-gray-600 p-4 bg-gray-50 rounded">
+          音声入力が無効です（音声再生完了まで待機中）
+        </div>
+      )}
+
+      {/* isActiveがtrueの場合のみ以下を表示 */}
+      {isActive && (
+        <>
+          {/* 自動開始の場合の表示 */}
+          {state.phase === 'idle' && autoStart && (
+            <div className="text-center text-gray-600 p-4 bg-blue-50 rounded">
+              音声認識の準備をしています...
+            </div>
+          )}
+
+          {/* 手動開始の場合のボタン */}
+          {state.phase === 'idle' && !autoStart && (
+            <div className="text-center">
+              <Button
+                onClick={handleStartListening}
+                variant="danger"
+                size="lg"
+                className="rounded-full"
+              >
+                🎤 音声で応答
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+
       {/* 録音状態表示 */}
       {state.phase === 'listening' && (
         <div className="text-center space-y-3">
@@ -160,8 +305,8 @@ export const SpeechInput = ({
           {/* リアルタイム音声認識結果 */}
           {state.interimTranscript && (
             <div className="bg-blue-50 p-3 rounded border">
-              <p className="text-blue-800 text-sm italic">
-                {state.interimTranscript}
+              <p className="text-blue-800 text-lg font-medium">
+                📝 認識中: {state.interimTranscript}
               </p>
             </div>
           )}
@@ -173,6 +318,20 @@ export const SpeechInput = ({
               size="sm"
             >
               録音停止
+            </Button>
+            <Button
+              onClick={() => {
+                // 文字起こしをクリア
+                setState(prev => ({
+                  ...prev,
+                  interimTranscript: '',
+                  transcript: '',
+                }));
+              }}
+              variant="warning"
+              size="sm"
+            >
+              🗑️ クリア
             </Button>
             <Button
               onClick={handleCancel}
@@ -195,17 +354,17 @@ export const SpeechInput = ({
 
       {/* 確認画面 */}
       {state.phase === 'confirming' && state.transcript && (
-        <Card variant="bordered">
+        <Card variant="bordered" className="border-green-200 bg-green-50">
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-800 mb-2">
-                認識された音声:
+              <h3 className="font-medium text-green-800 mb-2 text-lg">
+                ✅ 認識された音声:
               </h3>
-              <p className="text-gray-700 bg-gray-50 p-3 rounded">
+              <p className="text-green-900 bg-white p-4 rounded text-lg font-medium border border-green-200">
                 {state.transcript}
               </p>
               {state.confidence > 0 && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-green-600 mt-2">
                   信頼度: {Math.round(state.confidence * 100)}%
                 </p>
               )}
