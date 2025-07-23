@@ -31,8 +31,12 @@ const ConversationContainer = () => {
     timeLeft,
     isTimerActive,
     isInputActive,
+    isTimeUp,
     handleSpeechConfirm,
     handleSpeechCancel,
+    handleSpeechRetry,
+    handleRetryAfterTimeUp,
+    handleShowCorrectAnswer,
     handleAudioPlayEnd,
     nextTurn,
   } = useConversationFlow(
@@ -83,8 +87,12 @@ const ConversationContainer = () => {
           timeLeft={timeLeft}
           isTimerActive={isTimerActive}
           isInputActive={isInputActive}
+          isTimeUp={isTimeUp}
           onSpeechConfirm={handleSpeechConfirm}
           onSpeechCancel={handleSpeechCancel}
+          onSpeechRetry={handleSpeechRetry}
+          onRetryAfterTimeUp={handleRetryAfterTimeUp}
+          onShowCorrectAnswer={handleShowCorrectAnswer}
           onAudioPlayEnd={handleAudioPlayEnd}
           onNext={nextTurn}
           onAddToReview={handleAddToReview}

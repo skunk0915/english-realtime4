@@ -9,8 +9,12 @@ interface ConversationViewProps {
   timeLeft: number;
   isTimerActive: boolean;
   isInputActive: boolean;
+  isTimeUp: boolean;
   onSpeechConfirm: (transcript: string) => void;
   onSpeechCancel: () => void;
+  onSpeechRetry?: () => void;
+  onRetryAfterTimeUp?: () => void;
+  onShowCorrectAnswer?: () => void;
   onAudioPlayEnd: () => void;
   onNext: () => void;
   onAddToReview: () => void;
@@ -24,8 +28,12 @@ const ConversationView = ({
   timeLeft: _timeLeft,
   isTimerActive,
   isInputActive,
+  isTimeUp,
   onSpeechConfirm,
   onSpeechCancel,
+  onSpeechRetry,
+  onRetryAfterTimeUp,
+  onShowCorrectAnswer,
   onAudioPlayEnd,
   onNext,
   onAddToReview,
@@ -71,9 +79,12 @@ const ConversationView = ({
             <SpeechInput
               onConfirm={onSpeechConfirm}
               onCancel={onSpeechCancel}
+              onRetry={onSpeechRetry || (() => {})}
               placeholder="6秒以内に話してください..."
               isActive={isInputActive}
               lang="en-US"
+              shouldStop={showResponses}
+              autoStart={true}
             />
             
             {isTimerActive && (
@@ -89,6 +100,37 @@ const ConversationView = ({
               </div>
             )}
           </>
+        )}
+
+        {/* 時間制限経過後のボタン */}
+        {isTimeUp && !userResponse && (
+          <div className='space-y-4'>
+            <div className='bg-yellow-50 p-4 rounded border border-yellow-200 text-center'>
+              <p className='text-yellow-800 font-medium mb-3'>
+                ⏰ 時間切れです
+              </p>
+              <div className='flex space-x-2 justify-center'>
+                <Button
+                  onClick={() => {
+                    onRetryAfterTimeUp?.();
+                  }}
+                  variant='primary'
+                  size='lg'
+                >
+                  🔄 やり直し
+                </Button>
+                <Button
+                  onClick={() => {
+                    onShowCorrectAnswer?.();
+                  }}
+                  variant='secondary'
+                  size='lg'
+                >
+                  💡 正解例を見る
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

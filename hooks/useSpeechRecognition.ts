@@ -227,13 +227,11 @@ export const useSpeechRecognition = (
         interimResults: recognitionRef.current.interimResults
       });
       
-      // 開始前に状態を設定して重複開始を防ぐ
-      setIsListening(true);
       recognitionRef.current.start();
+      console.log('🎙️ start()呼び出し完了、onstartイベント待機中...');
+      // start()成功時にonstartイベントでisListeningが設定される
     } catch (err) {
       console.error('❌ 音声認識開始エラー:', err);
-      // エラーが発生した場合はisListeningをfalseに戻す
-      setIsListening(false);
       
       const speechError: SpeechError = {
         type: 'recognition',
@@ -258,18 +256,29 @@ export const useSpeechRecognition = (
       setIsListening(false);
       
       // 進行中の音声認識を停止
-      if (recognitionRef.current) {
+      if (recognitionRef.current && isListening) {
         console.log('🛑 進行中の音声認識を停止');
         
-        // onendイベントハンドラーを一時的にオーバーライドして完了を検知
-        const originalOnEnd = recognitionRef.current.onend;
-        recognitionRef.current.onend = () => {
+        // タイムアウト付きでonendイベントを待つ
+        const timeoutId = setTimeout(() => {
+          console.log('⏰ onendイベントのタイムアウト、強制完了');
+          cleanup();
+          resolve();
+        }, 1000);
+        
+        const cleanup = () => {
+          clearTimeout(timeoutId);
           // 状態をクリア
           setTranscript('');
           setConfidence(0);
           setError(null);
-          
           console.log('✅ 音声認識リセット完了');
+        };
+        
+        // onendイベントハンドラーを一時的にオーバーライドして完了を検知
+        const originalOnEnd = recognitionRef.current.onend;
+        recognitionRef.current.onend = () => {
+          cleanup();
           
           // 元のハンドラーを復元
           if (recognitionRef.current) {
@@ -283,17 +292,13 @@ export const useSpeechRecognition = (
           recognitionRef.current.abort();
         } catch (err) {
           console.warn('🔄 音声認識停止時のエラー（通常は問題なし）:', err);
-          // 状態をクリア
-          setTranscript('');
-          setConfidence(0);
-          setError(null);
+          cleanup();
           
           // ハンドラーを復元
           if (recognitionRef.current) {
             recognitionRef.current.onend = originalOnEnd;
           }
           
-          console.log('✅ 音声認識リセット完了');
           resolve();
         }
       } else {
@@ -302,7 +307,7 @@ export const useSpeechRecognition = (
         setConfidence(0);
         setError(null);
         
-        console.log('✅ 音声認識リセット完了');
+        console.log('✅ 音声認識リセット完了（停止状態）');
         resolve();
       }
     });
