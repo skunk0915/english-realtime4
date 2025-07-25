@@ -22,6 +22,44 @@ interface CSVRow {
   nativeEnglish5: string;
 }
 
+// RFC 4180準拠のCSV解析関数
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < line.length) {
+    const char = line[i];
+    
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        // エスケープされた引用符 ("") の処理
+        current += '"';
+        i += 2;
+      } else {
+        // 引用符の開始または終了
+        inQuotes = !inQuotes;
+        i++;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // 引用符外のカンマ = フィールド区切り
+      result.push(current);
+      current = '';
+      i++;
+    } else {
+      // 通常文字
+      current += char;
+      i++;
+    }
+  }
+  
+  // 最後のフィールドを追加
+  result.push(current);
+  
+  return result;
+}
+
 // CSVテキストをパースして行データに変換
 function parseCSV(csvText: string): CSVRow[] {
   const lines = csvText.split('\n').filter(line => line.trim() !== '');
@@ -30,7 +68,7 @@ function parseCSV(csvText: string): CSVRow[] {
   for (let i = 1; i < lines.length; i++) { // ヘッダー行をスキップ
     const line = lines[i];
     if (!line) continue;
-    const columns = line.split(',');
+    const columns = parseCSVLine(line);
     if (columns.length >= 18) {
       rows.push({
         sceneName: columns[0] || '',
