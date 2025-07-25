@@ -208,9 +208,20 @@ export const useSpeechRecognition = (
       return;
     }
     
-    // 既に音声認識中の場合は無視
+    // 既に音声認識中の場合は強制停止してから開始
     if (isListening) {
-      console.log('⚠️ 既に音声認識中です。開始要求を無視します。');
+      console.log('⚠️ 既に音声認識中です。強制停止してから再開始します。');
+      try {
+        recognitionRef.current.abort();
+        setIsListening(false);
+      } catch (abortErr) {
+        console.warn('🔄 音声認識停止時のエラー:', abortErr);
+      }
+      
+      // 少し待ってから再試行
+      setTimeout(() => {
+        start();
+      }, 100);
       return;
     }
     
@@ -264,7 +275,7 @@ export const useSpeechRecognition = (
           console.log('⏰ onendイベントのタイムアウト、強制完了');
           cleanup();
           resolve();
-        }, 1000);
+        }, 1500); // タイムアウトを1.5秒に延長
         
         const cleanup = () => {
           clearTimeout(timeoutId);
@@ -278,6 +289,7 @@ export const useSpeechRecognition = (
         // onendイベントハンドラーを一時的にオーバーライドして完了を検知
         const originalOnEnd = recognitionRef.current.onend;
         recognitionRef.current.onend = () => {
+          console.log('🔚 音声認識終了（リセット中）');
           cleanup();
           
           // 元のハンドラーを復元
@@ -285,7 +297,10 @@ export const useSpeechRecognition = (
             recognitionRef.current.onend = originalOnEnd;
           }
           
-          resolve();
+          // リセット完了を少し遅らせてブラウザの状態更新を待つ
+          setTimeout(() => {
+            resolve();
+          }, 100);
         };
         
         try {

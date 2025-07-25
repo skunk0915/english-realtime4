@@ -111,7 +111,12 @@ export const SpeechInput = ({
   useEffect(() => {
     if (autoStart && isActive && state.phase === 'idle' && !isListening && !error) {
       console.log('自動で音声認識を開始');
-      handleStartListening();
+      // 少し遅延させて確実に開始
+      setTimeout(() => {
+        if (state.phase === 'idle' && !isListening) {
+          handleStartListening();
+        }
+      }, 100);
     }
   }, [autoStart, isActive, state.phase, isListening, error]);
 
@@ -174,9 +179,19 @@ export const SpeechInput = ({
     console.log('🔄 話し直しでタイマーをリスタート');
     onRetry?.();
     
-    // リセット完了後に開始
-    console.log('🔄 話し直し用に音声認識を開始');
-    start();
+    // autoStartの機能に依存せず、直接開始
+    setTimeout(async () => {
+      console.log('🔄 話し直し用に音声認識を開始');
+      await reset(); // 念のため再度リセット
+      setState({
+        phase: 'idle',
+        transcript: '',
+        interimTranscript: '',
+        confidence: 0,
+        canRetry: false,
+      });
+      start();
+    }, 300);
   };
 
   const handleCancel = () => {
