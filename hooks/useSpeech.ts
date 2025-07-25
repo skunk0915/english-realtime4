@@ -7,7 +7,6 @@ import type {
   SpeechState,
   SpeechResult,
   SpeechError,
-  SpeechOptions,
 } from '@/lib/types/unified';
 import speechService from '@/lib/services/speechService';
 
@@ -167,6 +166,7 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
       
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [autoStart, state.isSupported]);
 
   // =============================================================================
@@ -192,9 +192,9 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
       return;
     }
 
-    const speechOptions: SpeechOptions = {
-      lang,
-      continuous,
+    const speechOptions = {
+      ...(lang && { lang }),
+      ...(continuous !== undefined && { continuous }),
     };
 
     speechService.startRecognitionWithRetry(speechOptions).catch((error) => {

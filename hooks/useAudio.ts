@@ -18,9 +18,9 @@ import audioService from '@/lib/services/audioService';
 export interface UseAudioOptions {
   autoPlay?: boolean;
   cacheEnabled?: boolean;
-  onPlayStart?: () => void;
-  onPlayEnd?: () => void;
-  onError?: (error: AudioError) => void;
+  onPlayStart?: (() => void) | undefined;
+  onPlayEnd?: (() => void) | undefined;
+  onError?: ((error: AudioError) => void) | undefined;
 }
 
 export interface UseAudioReturn {

@@ -5,7 +5,6 @@
 import { useEffect } from 'react';
 import Button from './Button';
 import useAudio, { UseAudioOptions } from '@/hooks/useAudio';
-import { audioConfig } from '@/lib/config/unified';
 
 // =============================================================================
 // コンポーネントプロップス型
@@ -15,9 +14,9 @@ export interface UnifiedAudioControlsProps {
   text: string;
   autoPlay?: boolean;
   showSlowSpeed?: boolean;
-  onPlayStart?: () => void;
-  onPlayEnd?: () => void;
-  onError?: (error: Error) => void;
+  onPlayStart?: (() => void) | undefined;
+  onPlayEnd?: (() => void) | undefined;
+  onError?: ((error: Error) => void) | undefined;
   className?: string;
   disabled?: boolean;
   showAutoPlayFallback?: boolean;
@@ -49,12 +48,12 @@ export const UnifiedAudioControls = ({
     cacheEnabled,
     onPlayStart,
     onPlayEnd,
-    onError: (audioError) => {
+    onError: onError ? (audioError: any) => {
       // AudioErrorをErrorに変換してコールバック
       const error = new Error(audioError.message);
       error.name = audioError.type;
-      onError?.(error);
-    },
+      onError(error);
+    } : undefined,
   };
 
   const { state, play, stop, reset, clearCache, _handleAutoPlay } = useAudio(audioOptions) as any;
@@ -78,7 +77,7 @@ export const UnifiedAudioControls = ({
       return;
     }
     
-    play(text, speed).catch((error) => {
+    play(text, speed).catch((error: any) => {
       console.error('手動音声再生エラー:', error);
     });
   };

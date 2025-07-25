@@ -426,4 +426,3 @@ export default audioService;
 
 // コンポーネントで使いやすいように名前付きエクスポート
 export { audioService };
-export { AudioService };

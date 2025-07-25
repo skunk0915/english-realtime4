@@ -2,7 +2,7 @@
 // 統合音声入力コンポーネント - useSpeechフックを使用した統合音声入力
 // =============================================================================
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Button from './Button';
 import useSpeech, { UseSpeechOptions } from '@/hooks/useSpeech';
 import type { SpeechResult, SpeechError } from '@/lib/types/unified';
@@ -14,9 +14,9 @@ import type { SpeechResult, SpeechError } from '@/lib/types/unified';
 export interface UnifiedSpeechInputProps {
   onResult?: (transcript: string, confidence: number) => void;
   onError?: (error: SpeechError) => void;
-  placeholder?: string;
-  className?: string;
-  disabled?: boolean;
+  placeholder?: string | undefined;
+  className?: string | undefined;
+  disabled?: boolean | undefined;
   autoStart?: boolean;
   continuous?: boolean;
   showConfirmation?: boolean;

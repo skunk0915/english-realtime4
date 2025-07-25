@@ -220,7 +220,7 @@ export class SpeechService {
       throw this.createSpeechError(
         'speech_recognition',
         `音声認識の開始に失敗しました: ${error}`,
-        error
+        error instanceof Error ? error.message : String(error)
       );
     }
   }
@@ -364,7 +364,7 @@ export class SpeechService {
       message,
       timestamp: new Date(),
       recoverable: type !== 'speech_permission' && type !== 'speech_not_supported',
-      code,
+      ...(code !== undefined && { code }),
       context: {},
     };
   }
@@ -418,4 +418,3 @@ export default speechService;
 
 // コンポーネントで使いやすいように名前付きエクスポート
 export { speechService };
-export { SpeechService };
