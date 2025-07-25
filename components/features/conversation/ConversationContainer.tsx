@@ -1,7 +1,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Scene } from '@/lib/types/conversation';
-import { scenes } from '@/lib/data/scenes';
+import { loadScenesFromCSV } from '@/lib/data/csvParser';
 import { useConversationFlow, useReviewSystem } from '@/hooks';
 import ConversationView from './ConversationView';
 
@@ -11,15 +11,28 @@ const ConversationContainer = () => {
   const sceneId = params.sceneId as string;
   
   const [scene, setScene] = useState<Scene | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToReview } = useReviewSystem();
 
   useEffect(() => {
-    const foundScene = scenes.find(s => s.id === sceneId);
-    if (foundScene) {
-      setScene(foundScene);
-    } else {
-      router.push('/conversation-training');
-    }
+    const loadScene = async () => {
+      try {
+        const scenes = await loadScenesFromCSV();
+        const foundScene = scenes.find(s => s.id === sceneId);
+        if (foundScene) {
+          setScene(foundScene);
+        } else {
+          router.push('/conversation-training');
+        }
+      } catch (error) {
+        console.error('Failed to load scene:', error);
+        router.push('/conversation-training');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadScene();
   }, [sceneId, router]);
 
   const {
@@ -49,12 +62,12 @@ const ConversationContainer = () => {
     }
   };
 
-  if (!scene || !currentTurn) {
+  if (isLoading || !scene || !currentTurn) {
     return (
       <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4'></div>
-          <p className='text-gray-600'>読み込み中...</p>
+          <p className='text-gray-600'>シーンを読み込み中...</p>
         </div>
       </div>
     );

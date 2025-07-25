@@ -6,6 +6,7 @@ export interface ConversationTurn {
   responses?: ConversationResponse[];
   context?: string;
   translation?: string;
+  japaneseExample?: string;
 }
 
 export interface ConversationResponse {

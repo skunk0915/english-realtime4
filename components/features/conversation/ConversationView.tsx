@@ -40,6 +40,14 @@ const ConversationView = ({
   isLastTurn,
 }: ConversationViewProps) => {
   const [isTextRevealed, setIsTextRevealed] = useState(false);
+  
+  // Debug logs
+  console.log('ConversationView Debug:', {
+    turnId: turn.id,
+    japaneseExample: turn.japaneseExample,
+    showResponses,
+    shouldShowJapaneseExample: !showResponses && turn.japaneseExample
+  });
   return (
     <div className='space-y-6'>
       {/* AI メッセージ */}
@@ -76,6 +84,23 @@ const ConversationView = ({
       <div className='space-y-4'>
         {!showResponses && (
           <>
+            {/* 日本語回答例表示 */}
+            {turn.japaneseExample && (
+              <Card variant='bordered' className='bg-blue-50'>
+                <CardContent className='py-3'>
+                  <p className='text-sm text-gray-600 mb-1'>日本語回答例:</p>
+                  <p className='text-gray-800 font-medium'>{turn.japaneseExample}</p>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* デバッグ表示 - 本番では削除 */}
+            <div className='bg-red-100 p-2 text-xs border rounded'>
+              <div>Debug: showResponses={String(showResponses)}</div>
+              <div>Debug: japaneseExample="{turn.japaneseExample}"</div>
+              <div>Debug: should show={String(!showResponses && turn.japaneseExample)}</div>
+            </div>
+            
             <SpeechInput
               onConfirm={onSpeechConfirm}
               onCancel={onSpeechCancel}
