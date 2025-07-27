@@ -138,3 +138,8 @@
 - 制限時間切れ時の適切な状態管理
 - ユーザビリティを考慮した確認フロー
 - 英語学習アプリ向けの設定済みコンポーネント
+
+### デプロイ完了 Sun Jul 27 23:01:57 JST 2025
+- URL: https://english-realtime-19mdq4a80-skunk0915-gmailcoms-projects.vercel.app
+- 音声入力制限時間機能、確認フロー、回答例表示機能を含む完全版
+- TypeScriptエラー修正（exactOptionalPropertyTypes対応）済み
