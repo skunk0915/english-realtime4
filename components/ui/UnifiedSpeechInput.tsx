@@ -67,7 +67,7 @@ export const UnifiedSpeechInput = ({
     lang,
     continuous,
     autoStart,
-    timeLimit,
+    ...(timeLimit !== undefined && { timeLimit }),
     onResult: (result: SpeechResult) => {
       console.log('音声認識結果:', result);
       
@@ -98,13 +98,15 @@ export const UnifiedSpeechInput = ({
       console.error('音声認識エラー:', error);
       onError?.(error);
     },
-    onTimeUp: (currentTranscript: string) => {
-      console.log('制限時間切れ:', currentTranscript);
-      setIsTimeUp(true);
-      setUserInput(currentTranscript);
-      setIsManualEdit(false);
-      onTimeUp?.(currentTranscript);
-    },
+    ...(onTimeUp && {
+      onTimeUp: (currentTranscript: string) => {
+        console.log('制限時間切れ:', currentTranscript);
+        setIsTimeUp(true);
+        setUserInput(currentTranscript);
+        setIsManualEdit(false);
+        onTimeUp(currentTranscript);
+      }
+    }),
   };
 
   const { state, timeLeft, start, stop, reset, confirm, retry } = useSpeech(speechOptions);
@@ -483,22 +485,22 @@ export const TimedSpeechInput = ({
   className?: string;
   disabled?: boolean;
 }) => {
-  return (
-    <UnifiedSpeechInput
-      timeLimit={timeLimit}
-      onResult={onResult}
-      onTimeUp={onTimeUp}
-      onError={onError}
-      sampleAnswer={sampleAnswer}
-      sampleAnswerJa={sampleAnswerJa}
-      className={className}
-      disabled={disabled}
-      showConfirmation={true}
-      showTimer={true}
-      showSampleAnswer={true}
-      lang="en-US" // 英語学習用
-      autoStart={false}
-      continuous={true}
-    />
-  );
+  const props: UnifiedSpeechInputProps = {
+    timeLimit,
+    showConfirmation: true,
+    showTimer: true,
+    showSampleAnswer: true,
+    lang: "en-US", // 英語学習用
+    autoStart: false,
+    continuous: true,
+    ...(onResult && { onResult }),
+    ...(onTimeUp && { onTimeUp }),
+    ...(onError && { onError }),
+    ...(sampleAnswer && { sampleAnswer }),
+    ...(sampleAnswerJa && { sampleAnswerJa }),
+    ...(className && { className }),
+    ...(disabled !== undefined && { disabled }),
+  };
+
+  return <UnifiedSpeechInput {...props} />;
 };
