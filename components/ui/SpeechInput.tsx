@@ -12,6 +12,7 @@ interface SpeechInputProps {
   lang?: string;
   shouldStop?: boolean;
   autoStart?: boolean;
+  exampleText?: string;
 }
 
 interface SpeechInputState {
@@ -31,6 +32,7 @@ export const SpeechInput = ({
   lang = 'en-US',
   shouldStop = false,
   autoStart = false,
+  exampleText = 'こんにちは、調子はどうですか？',
 }: SpeechInputProps) => {
   const [state, setState] = useState<SpeechInputState>({
     phase: 'idle',
@@ -317,6 +319,13 @@ export const SpeechInput = ({
             🎤 録音中...
           </div>
           <p className="text-gray-600 text-sm">{placeholder}</p>
+          
+          {/* 日本語回答例を表示 */}
+          <div className="bg-blue-50 p-3 rounded border border-blue-200">
+            <p className="text-blue-800 text-sm font-medium">
+              💡 回答例（日本語）: {exampleText}
+            </p>
+          </div>
           
           {/* リアルタイム音声認識結果 */}
           {state.interimTranscript && (

@@ -21,6 +21,12 @@ export interface UnifiedSpeechInputProps {
   continuous?: boolean;
   showConfirmation?: boolean;
   lang?: string;
+  timeLimit?: number; // 制限時間（秒）
+  onTimeUp?: (transcript: string) => void; // 制限時間切れ時のコールバック
+  showTimer?: boolean; // タイマー表示
+  showSampleAnswer?: boolean; // 回答例表示
+  sampleAnswer?: string; // 回答例テキスト
+  sampleAnswerJa?: string; // 日本語回答例
 }
 
 // =============================================================================
@@ -37,6 +43,12 @@ export const UnifiedSpeechInput = ({
   continuous = true,
   showConfirmation = true,
   lang = 'ja-JP',
+  timeLimit,
+  onTimeUp,
+  showTimer = false,
+  showSampleAnswer = false,
+  sampleAnswer,
+  sampleAnswerJa,
 }: UnifiedSpeechInputProps) => {
   // =============================================================================
   // 状態管理
@@ -44,6 +56,8 @@ export const UnifiedSpeechInput = ({
 
   const [userInput, setUserInput] = useState('');
   const [isManualEdit, setIsManualEdit] = useState(false);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+  const [showJaToggle, setShowJaToggle] = useState(false);
 
   // =============================================================================
   // 音声認識フックの初期化
@@ -53,12 +67,14 @@ export const UnifiedSpeechInput = ({
     lang,
     continuous,
     autoStart,
+    timeLimit,
     onResult: (result: SpeechResult) => {
       console.log('音声認識結果:', result);
       
       if (result.isFinal) {
         setUserInput(result.transcript);
         setIsManualEdit(false);
+        setIsTimeUp(false);
         
         if (!showConfirmation) {
           // 確認不要の場合はすぐにコールバック
@@ -73,6 +89,7 @@ export const UnifiedSpeechInput = ({
     },
     onStart: () => {
       console.log('音声認識開始');
+      setIsTimeUp(false);
     },
     onEnd: () => {
       console.log('音声認識終了');
@@ -81,9 +98,16 @@ export const UnifiedSpeechInput = ({
       console.error('音声認識エラー:', error);
       onError?.(error);
     },
+    onTimeUp: (currentTranscript: string) => {
+      console.log('制限時間切れ:', currentTranscript);
+      setIsTimeUp(true);
+      setUserInput(currentTranscript);
+      setIsManualEdit(false);
+      onTimeUp?.(currentTranscript);
+    },
   };
 
-  const { state, start, stop, reset, confirm, retry } = useSpeech(speechOptions);
+  const { state, timeLeft, start, stop, reset, confirm, retry } = useSpeech(speechOptions);
 
   // =============================================================================
   // イベントハンドラー
@@ -94,6 +118,7 @@ export const UnifiedSpeechInput = ({
     
     setUserInput('');
     setIsManualEdit(false);
+    setIsTimeUp(false);
     start();
   };
 
@@ -111,12 +136,14 @@ export const UnifiedSpeechInput = ({
   const handleRetry = () => {
     setUserInput('');
     setIsManualEdit(false);
+    setIsTimeUp(false);
     retry();
   };
 
   const handleReset = () => {
     setUserInput('');
     setIsManualEdit(false);
+    setIsTimeUp(false);
     reset();
   };
 
@@ -150,9 +177,15 @@ export const UnifiedSpeechInput = ({
       return 'このブラウザーは音声認識をサポートしていません';
     }
     
+    if (isTimeUp) {
+      return '⏰ 制限時間切れ - 音声入力結果を確認してください';
+    }
+    
     switch (state.phase) {
       case 'listening':
-        return '🎤 音声を認識中...';
+        return showTimer && timeLimit 
+          ? `🎤 音声を認識中... (残り${timeLeft}秒)`
+          : '🎤 音声を認識中...';
       case 'processing':
         return '🔄 処理中...';
       case 'confirming':
@@ -179,7 +212,7 @@ export const UnifiedSpeechInput = ({
     if (state.isListening) {
       return '⏹️ 停止';
     }
-    if (state.phase === 'confirming') {
+    if (state.phase === 'confirming' || isTimeUp) {
       return '✅ 確定';
     }
     return '🎤 録音';
@@ -189,7 +222,7 @@ export const UnifiedSpeechInput = ({
     if (state.isListening) {
       return handleStopRecording;
     }
-    if (state.phase === 'confirming') {
+    if (state.phase === 'confirming' || isTimeUp) {
       return handleConfirm;
     }
     return handleStartRecording;
@@ -272,7 +305,7 @@ export const UnifiedSpeechInput = ({
         </Button>
 
         {/* リトライボタン */}
-        {(state.phase === 'confirming' || state.error) && (
+        {(state.phase === 'confirming' || state.error || isTimeUp) && (
           <Button
             onClick={handleRetry}
             disabled={disabled || !state.isSupported}
@@ -307,6 +340,64 @@ export const UnifiedSpeechInput = ({
           >
             ✅ 手動入力を確定
           </Button>
+        </div>
+      )}
+
+      {/* 制限時間切れ時の確認メッセージ */}
+      {isTimeUp && showConfirmation && (
+        <div className="bg-orange-50 border border-orange-200 rounded p-3 space-y-3">
+          <div className="text-orange-800 text-sm font-medium">
+            ⏰ 制限時間が経過しました
+          </div>
+          <div className="text-gray-700 text-sm">
+            現在の音声入力結果: <span className="font-medium">"{userInput || '（入力なし）'}"</span>
+          </div>
+          <div className="flex gap-2 justify-center">
+            <Button
+              onClick={handleConfirm}
+              disabled={disabled}
+              variant="primary"
+              size="sm"
+            >
+              ✅ この結果で確定
+            </Button>
+            <Button
+              onClick={handleRetry}
+              disabled={disabled || !state.isSupported}
+              variant="secondary"
+              size="sm"
+            >
+              🔄 やり直し
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 回答例表示 */}
+      {showSampleAnswer && (state.phase === 'confirming' || isTimeUp) && (sampleAnswer || sampleAnswerJa) && (
+        <div className="bg-blue-50 border border-blue-200 rounded p-3 space-y-2">
+          <div className="text-blue-800 text-sm font-medium">
+            💡 回答例
+          </div>
+          {sampleAnswer && (
+            <div className="text-gray-700 text-sm">
+              <span className="font-medium">English:</span> {sampleAnswer}
+            </div>
+          )}
+          {sampleAnswerJa && (
+            <div className="text-gray-600 text-sm">
+              <span className="font-medium">日本語:</span> 
+              <span className={showJaToggle ? '' : 'hidden'}>
+                {sampleAnswerJa}
+              </span>
+              <button
+                onClick={() => setShowJaToggle(!showJaToggle)}
+                className="ml-2 text-blue-600 hover:text-blue-800 underline text-xs"
+              >
+                {showJaToggle ? '非表示' : '表示'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -361,6 +452,53 @@ export const SpeechInputCompat = ({
       disabled={disabled}
       showConfirmation={true}
       autoStart={false}
+    />
+  );
+};
+
+// =============================================================================
+// 制限時間付き音声入力のラッパー
+// =============================================================================
+
+/**
+ * 制限時間付き音声入力コンポーネント
+ * 英語学習アプリ向けの設定済みバージョン
+ */
+export const TimedSpeechInput = ({
+  timeLimit = 30,
+  onResult,
+  onTimeUp,
+  onError,
+  sampleAnswer,
+  sampleAnswerJa,
+  className,
+  disabled,
+}: {
+  timeLimit?: number;
+  onResult?: (transcript: string, confidence: number) => void;
+  onTimeUp?: (transcript: string) => void;
+  onError?: (error: SpeechError) => void;
+  sampleAnswer?: string;
+  sampleAnswerJa?: string;
+  className?: string;
+  disabled?: boolean;
+}) => {
+  return (
+    <UnifiedSpeechInput
+      timeLimit={timeLimit}
+      onResult={onResult}
+      onTimeUp={onTimeUp}
+      onError={onError}
+      sampleAnswer={sampleAnswer}
+      sampleAnswerJa={sampleAnswerJa}
+      className={className}
+      disabled={disabled}
+      showConfirmation={true}
+      showTimer={true}
+      showSampleAnswer={true}
+      lang="en-US" // 英語学習用
+      autoStart={false}
+      continuous={true}
     />
   );
 };

@@ -7,3 +7,4 @@ export { EnhancedAudioControls } from './EnhancedAudioControls';
 export { default as ProgressBar } from './ProgressBar';
 export { SpeechInput } from './SpeechInput';
 export { TextReveal } from './TextReveal';
+export { UnifiedSpeechInput, SpeechInputCompat, TimedSpeechInput } from './UnifiedSpeechInput';

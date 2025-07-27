@@ -224,6 +224,11 @@ export function convertCSVToScenes(csvText: string): Scene[] {
         responses: []
       };
       
+      // userRowがある場合のみjapaneseExampleを設定（ユーザーの日本語回答例）
+      if (userRow?.japanese1) {
+        conversation.japaneseExample = userRow.japanese1;
+      }
+      
       // ユーザーの返答パターンを追加
       if (userRow) {
         const responses: ConversationResponse[] = [];

@@ -9,6 +9,7 @@ import type {
   SpeechError,
 } from '@/lib/types/unified';
 import speechService from '@/lib/services/speechService';
+import { useTimer } from '@/hooks/useTimer';
 
 // =============================================================================
 // フックオプション型
@@ -18,15 +19,18 @@ export interface UseSpeechOptions {
   lang?: string;
   continuous?: boolean;
   autoStart?: boolean;
+  timeLimit?: number; // 制限時間（秒）
   onResult?: (result: SpeechResult) => void;
   onInterimResult?: (result: SpeechResult) => void;
   onStart?: () => void;
   onEnd?: () => void;
   onError?: (error: SpeechError) => void;
+  onTimeUp?: (currentTranscript: string) => void; // 制限時間切れ時のコールバック
 }
 
 export interface UseSpeechReturn {
   state: SpeechState;
+  timeLeft: number; // 残り時間（秒）
   start: () => void;
   stop: () => void;
   reset: () => Promise<void>;
@@ -43,11 +47,13 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
     lang,
     continuous,
     autoStart = false,
+    timeLimit,
     onResult,
     onInterimResult,
     onStart,
     onEnd,
     onError,
+    onTimeUp,
   } = options;
 
   // =============================================================================
@@ -67,6 +73,17 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
   const currentTranscript = useRef('');
   const isResetting = useRef(false);
 
+  // タイマー機能
+  const timer = useTimer({
+    initialTime: timeLimit || 0,
+    onTimeUp: () => {
+      console.log('制限時間切れ:', currentTranscript.current);
+      onTimeUp?.(currentTranscript.current);
+      stop(); // 音声認識を停止
+    },
+    autoStart: false,
+  });
+
   // =============================================================================
   // サービスイベントリスナー設定
   // =============================================================================
@@ -80,6 +97,10 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
         isListening: true,
         error: null,
       }));
+      // タイマーが設定されている場合は開始
+      if (timeLimit && timeLimit > 0) {
+        timer.restart(timeLimit);
+      }
       onStart?.();
     };
 
@@ -114,6 +135,9 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
 
     // 終了イベント
     const handleEnd = () => {
+      // タイマーを停止
+      timer.stop();
+      
       if (!isResetting.current) {
         setState(prev => ({
           ...prev,
@@ -126,6 +150,9 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
 
     // エラーイベント
     const handleError = (error: SpeechError) => {
+      // タイマーを停止
+      timer.stop();
+      
       setState(prev => ({
         ...prev,
         isListening: false,
@@ -207,8 +234,10 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
       return;
     }
 
+    // タイマーを停止
+    timer.stop();
     speechService.stopRecognition();
-  }, [state.isListening]);
+  }, [state.isListening, timer]);
 
   const reset = useCallback(async () => {
     console.log('音声認識をリセット中...');
@@ -216,6 +245,9 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
     isResetting.current = true;
     
     try {
+      // タイマーをリセット
+      timer.reset();
+      
       await speechService.resetRecognition();
       
       setState({
@@ -236,7 +268,7 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
     } finally {
       isResetting.current = false;
     }
-  }, []);
+  }, [timer]);
 
   const confirm = useCallback(() => {
     if (state.phase === 'confirming' && currentTranscript.current) {
@@ -284,6 +316,7 @@ export const useSpeech = (options: UseSpeechOptions = {}): UseSpeechReturn => {
 
   return {
     state,
+    timeLeft: timer.timeLeft,
     start,
     stop,
     reset,

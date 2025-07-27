@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ConversationTurn } from '@/lib/types/conversation';
 import { Card, CardContent, Button, Timer, EnhancedAudioControls, SpeechInput, TextReveal } from '@/components/ui';
 
@@ -40,14 +40,20 @@ const ConversationView = ({
   isLastTurn,
 }: ConversationViewProps) => {
   const [isTextRevealed, setIsTextRevealed] = useState(false);
+  const [isJapaneseRevealed, setIsJapaneseRevealed] = useState(false);
   
-  // Debug logs
-  console.log('ConversationView Debug:', {
-    turnId: turn.id,
-    japaneseExample: turn.japaneseExample,
-    showResponses,
-    shouldShowJapaneseExample: !showResponses && turn.japaneseExample
-  });
+
+  // ターンが変わったときにテキスト表示状態をリセット
+  React.useEffect(() => {
+    setIsTextRevealed(false);
+    setIsJapaneseRevealed(false);
+  }, [turn.id]);
+
+  // 音声再生完了時にテキストを自動表示
+  const handleAudioPlayEndWithTextReveal = () => {
+    setIsTextRevealed(true);
+    onAudioPlayEnd();
+  };
   return (
     <div className='space-y-6'>
       {/* AI メッセージ */}
@@ -70,8 +76,8 @@ const ConversationView = ({
               </div>
               <EnhancedAudioControls
                 text={turn.text}
-                autoPlay={true}
-                onPlayEnd={onAudioPlayEnd}
+                autoPlay={!showResponses}
+                onPlayEnd={handleAudioPlayEndWithTextReveal}
                 onError={(error) => console.error('音声再生エラー:', error)}
                 showSlowSpeed={true}
               />
@@ -88,18 +94,22 @@ const ConversationView = ({
             {turn.japaneseExample && (
               <Card variant='bordered' className='bg-blue-50'>
                 <CardContent className='py-3'>
-                  <p className='text-sm text-gray-600 mb-1'>日本語回答例:</p>
-                  <p className='text-gray-800 font-medium'>{turn.japaneseExample}</p>
+                  <div className='flex items-center justify-between mb-2'>
+                    <p className='text-sm text-gray-600'>日本語回答例:</p>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => setIsJapaneseRevealed(!isJapaneseRevealed)}
+                    >
+                      {isJapaneseRevealed ? '隠す' : '表示'}
+                    </Button>
+                  </div>
+                  {isJapaneseRevealed && (
+                    <p className='text-gray-800 font-medium'>{turn.japaneseExample}</p>
+                  )}
                 </CardContent>
               </Card>
             )}
-            
-            {/* デバッグ表示 - 本番では削除 */}
-            <div className='bg-red-100 p-2 text-xs border rounded'>
-              <div>Debug: showResponses={String(showResponses)}</div>
-              <div>Debug: japaneseExample="{turn.japaneseExample}"</div>
-              <div>Debug: should show={String(!showResponses && turn.japaneseExample)}</div>
-            </div>
             
             <SpeechInput
               onConfirm={onSpeechConfirm}
@@ -110,6 +120,7 @@ const ConversationView = ({
               lang="en-US"
               shouldStop={showResponses}
               autoStart={true}
+              exampleText={turn.japaneseExample || 'こんにちは、調子はどうですか？'}
             />
             
             {isTimerActive && (
